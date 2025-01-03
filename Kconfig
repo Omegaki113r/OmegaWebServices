@@ -1,0 +1,27 @@
+menu "OmegaWebServices Configuration"
+    config OMEGA_WEB_SERVICES_DEBUG
+        bool "Enable Web Services Debug logs"
+        default "n"
+        help
+            This is used to enable or disable debug logs
+    config OMEGA_WEB_SERVICES_INFO
+        bool "Enable Web Services Info logs"
+        default "n"
+        help
+            This is used to enable or disable info logs
+    config OMEGA_WEB_SERVICES_WARN
+        bool "Enable Web Services Warn logs"
+        default "n"
+        help
+            This is used to enable or disable warn logs
+    config OMEGA_WEB_SERVICES_ERROR
+        bool "Enable Web Services Error logs"
+        default "n"
+        help
+            This is used to enable or disable error logs
+    config OMEGA_WEB_SERVICES_PROFILE
+        bool "Enable Web Services Profiling"
+        default "n"
+        help
+            This is used to enable or disable profiling
+endmenu

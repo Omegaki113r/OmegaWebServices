@@ -1,0 +1,30 @@
+dependencies:
+  OmegaFileSystemController:
+    component_hash: 00dc1d66b1d17eb2af802ab880b45c6ec2b92b5daea8d795372fce4e510eba05
+    source:
+      git: https://github.com/Omegaki113r/OmegaFileSystemController.git
+      path: .
+      type: git
+    version: 4cebc2e9a63e399f00632ee0539c55bae43361c9
+  OmegaUtilityDriver:
+    component_hash: ed21e6cf3bd78abef406511a32bc7b7b9b3c0686ecef104ddd646f26424cee0c
+    source:
+      git: https://github.com/Omegaki113r/OmegaUtilityDriver.git
+      path: .
+      type: git
+    version: 88638f2563ae537d1d2cef1153b142fc98abc446
+  OmegaWiFiController:
+    component_hash: c07cc11b9f7df7418a33eb524b36e2c6999d77178710c6e3a8c5a09736b3cf56
+    source:
+      git: https://github.com/Omegaki113r/OmegaWiFiController.git
+      path: .
+      type: git
+    version: daa0c948a9bc3c1cb12e268817bad89d7e64b49f
+  idf:
+    component_hash: null
+    source:
+      type: idf
+    version: 5.3.0
+manifest_hash: c6ce685469a0b7971546b08569badc3ec5cf82530c652cf6cc1c1b031e6f205f
+target: esp32
+version: 1.0.0

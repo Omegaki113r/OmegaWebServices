@@ -3,5 +3,5 @@ dependencies:
   ## Required IDF version
   idf:
     version: ">=4.1.0"
-  OmegaUtilityDriver:
-    git: https://github.com/Omegaki113r/OmegaUtilityDriver.git
+  OmegaWiFiController:
+    git: https://github.com/Omegaki113r/OmegaWiFiController.git
