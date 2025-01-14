@@ -11,26 +11,10 @@
 #include <nvs_flash.h>
 
 #include "OmegaWebServices/WebServices.hpp"
+#include "OmegaWiFiController/WiFiController.hpp"
 
 #define URL "https://httpbin.org/get"
 #define URL_LEN strlen(URL)
-
-esp_err_t http_event_handler(esp_http_client_event_t *evt)
-{
-    switch (evt->event_id)
-    {
-    case HTTP_EVENT_ON_DATA:
-    {
-        char *data = (char *)malloc(sizeof(char) * (evt->data_len + 1));
-        std::strncpy(data, (const char *)evt->data, evt->data_len);
-        data[evt->data_len] = 0;
-        ESP_LOGI(__func__, "%s", data);
-        return ESP_OK;
-    }
-    default:
-        return ESP_OK;
-    }
-}
 
 extern "C" void app_main(void)
 {
@@ -42,32 +26,24 @@ extern "C" void app_main(void)
     }
     ESP_ERROR_CHECK(ret);
 
-    ESP_ERROR_CHECK(esp_netif_init());
-    ESP_ERROR_CHECK(esp_event_loop_create_default());
-    esp_netif_t *sta_netif = esp_netif_create_default_wifi_sta();
-    assert(sta_netif);
-    wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
-    ESP_ERROR_CHECK(esp_wifi_init(&cfg));
-    ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
-    ESP_ERROR_CHECK(esp_wifi_start());
+    ::Omega::WiFiController::initialize(::Omega::WiFiController::Mode::eSTATION_MODE);
+    ::Omega::WiFiController::connect("Xtronic", "Om3gaki113r");
+    ::Omega::WiFiController::wait_for_ip();
 
-    vTaskDelay(pdMS_TO_TICKS(5 * 1000));
-
-    wifi_config_t wifi_config = {
-        .sta = {
-            .ssid = "Xtronic",
-            .password = "Om3gaki113r",
-        },
-    };
-    esp_wifi_set_config(WIFI_IF_STA, &wifi_config);
-    esp_wifi_connect();
-
-    vTaskDelay(pdMS_TO_TICKS(5 * 1000));
-
-    const auto [status, response] = ::Omega::WebServices::GET(URL);
-    for (const auto data : response)
+    auto callback = [](const uint8_t *data, const size_t data_len)
     {
-        printf("%c", (char)data);
+        OMEGA_LOGD("Length: %d", data_len);
+        OMEGA_LOGD("Data: %s", (const char *)data);
+    };
+    const auto [status, data] = ::Omega::WebServices::GET(URL, callback);
+    if (eSUCCESS != status)
+    {
+        OMEGA_LOGE("Request failed");
+        return;
     }
-    printf("\r\n");
+    for (const auto &[key, value] : data.header)
+    {
+        OMEGA_LOGD("%s : %s", key.c_str(), value.c_str());
+    }
+    // OMEGA_HEX_LOGI(data.body, data.body_size);
 }

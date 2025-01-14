@@ -7,19 +7,19 @@ dependencies:
       type: git
     version: 4cebc2e9a63e399f00632ee0539c55bae43361c9
   OmegaUtilityDriver:
-    component_hash: ed21e6cf3bd78abef406511a32bc7b7b9b3c0686ecef104ddd646f26424cee0c
+    component_hash: 6262c1990d93465c3e33187e4686296f4f798fcd57110fa035c5413ac7ba43dd
     source:
       git: https://github.com/Omegaki113r/OmegaUtilityDriver.git
       path: .
       type: git
-    version: 88638f2563ae537d1d2cef1153b142fc98abc446
+    version: ac8be4c137fb3614829b38ceb62892d56d902f0b
   OmegaWiFiController:
-    component_hash: c07cc11b9f7df7418a33eb524b36e2c6999d77178710c6e3a8c5a09736b3cf56
+    component_hash: f4107a8a8b05bf1d6608f4bb1a0a4c33ff982c8d2db489e158222f0d131d1289
     source:
       git: https://github.com/Omegaki113r/OmegaWiFiController.git
       path: .
       type: git
-    version: daa0c948a9bc3c1cb12e268817bad89d7e64b49f
+    version: 438224e900ded13885ba4412da80f952e085d6f6
   idf:
     component_hash: null
     source:

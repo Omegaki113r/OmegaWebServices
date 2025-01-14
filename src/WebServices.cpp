@@ -10,7 +10,7 @@
  * File Created: Thursday, 2nd January 2025 8:01:20 pm
  * Author: Omegaki113r (omegaki113r@gmail.com)
  * -----
- * Last Modified: Friday, 3rd January 2025 8:13:58 pm
+ * Last Modified: Wednesday, 15th January 2025 1:01:49 am
  * Modified By: Omegaki113r (omegaki113r@gmail.com)
  * -----
  * Copyright <<projectCreationYear>> - 2025 0m3g4ki113r, Xtronic
@@ -20,6 +20,7 @@
  * ----------	---	---------------------------------------------------------
  */
 
+#include <cstring>
 #include <string>
 #include <variant>
 #include <vector>
@@ -56,13 +57,37 @@ namespace Omega
 {
     namespace WebServices
     {
-        Response GET(const std::string &in_url) { return GET(in_url.c_str()); }
-
-        Response GET(const char *in_url)
+        struct _Response
         {
-            std::vector<u8> received_data{};
+            const char *m_url;
+            const Header &m_header;
+            const Authentication &m_auth;
+            const data_callback_t &m_callback;
+            Response &m_response;
+        };
+
+        Response GET(const std::string &in_url) { return GET(in_url.c_str(), {}, {}); }
+
+        Response GET(const char *in_url) { return GET(in_url, {}, {}); }
+
+        Response GET(const char *in_url, const char *in_username, const char *in_password) { return GET(in_url, {}, {in_username, in_password}); }
+
+        Response GET(const char *in_url, const Authentication &in_authentication) { return GET(in_url, {}, in_authentication); }
+
+        Response GET(const char *in_url, const Header &in_header) { return GET(in_url, in_header, {}); }
+
+        Response GET(const char *in_url, data_callback_t callback) { return GET(in_url, {}, {}, callback); }
+
+        Response GET(const char *in_url, const Header &in_header, const Authentication &in_authentication, data_callback_t in_callback)
+        {
+            if (nullptr == in_url || 0 == std::strlen(in_url))
+            {
+                LOGE("Provided URL is invalid");
+                return {eFAILED};
+            }
             const auto http_event_handler = [](esp_http_client_event_t *evt)
             {
+                auto response = static_cast<_Response *>(evt->user_data);
                 switch (evt->event_id)
                 {
                 case HTTP_EVENT_ERROR:
@@ -83,14 +108,29 @@ namespace Omega
                 case HTTP_EVENT_ON_HEADER:
                 {
                     LOGD("HTTP_EVENT_ON_HEADER");
+                    response->m_response.data.header.add_header(evt->header_key, evt->header_value);
                     break;
                 }
                 case HTTP_EVENT_ON_DATA:
                 {
                     LOGD("HTTP_EVENT_ON_DATA");
-                    auto *vec = static_cast<std::vector<u8> *>(evt->user_data);
-                    uint8_t *data = static_cast<uint8_t *>(evt->data);
-                    vec->assign(data, data + evt->data_len);
+                    const auto *data = static_cast<u8 *>(evt->data);
+                    const auto data_len = evt->data_len;
+                    if (esp_http_client_is_chunked_response(evt->client))
+                    {
+                        if (nullptr != response->m_callback)
+                            response->m_callback(data, data_len);
+                    }
+                    else
+                    {
+                        response->m_response.data.body = static_cast<u8 *>(omega_malloc(sizeof(u8) * data_len));
+                        if (nullptr == response->m_response.data.body)
+                        {
+                            LOGE("Allocating memory failed for body");
+                            return ESP_FAIL;
+                        }
+                        UNUSED(std::memcpy(response->m_response.data.body, data, data_len));
+                    }
                     break;
                 }
                 case HTTP_EVENT_ON_FINISH:
@@ -116,15 +156,47 @@ namespace Omega
                 }
                 return ESP_OK;
             };
-            esp_http_client_config_t http_config{
+            Response response{};
+            _Response _response{in_url, in_header, in_authentication, in_callback, response};
+            const esp_http_client_config_t http_config{
                 .url = in_url,
+                .username = in_authentication.username,
+                .password = in_authentication.password,
+                .method = HTTP_METHOD_GET,
                 .event_handler = http_event_handler,
-                .user_data = &received_data,
+                .user_data = &_response,
             };
             esp_http_client_handle_t handle = esp_http_client_init(&http_config);
-            esp_http_client_perform(handle);
-            esp_http_client_cleanup(handle);
-            return {eSUCCESS, received_data};
+            for (const auto &[key, value] : in_header)
+            {
+                LOGE("esp_http_client_set_header failed for [%s]:%s", key.c_str(), value.c_str());
+                // if (ESP_OK != esp_http_client_set_header(handle, key, value))
+                // {
+                //     LOGE("esp_http_client_set_header failed for [%s]:%s", key.c_str(), value.c_str());
+                //     return {eFAILED};
+                // }
+            }
+            if (ESP_OK != esp_http_client_perform(handle))
+            {
+                LOGE("esp_http_client_perform failed");
+                return {eFAILED};
+            }
+            if (ESP_OK != esp_http_client_cleanup(handle))
+            {
+                LOGE("esp_http_client_cleanup failed");
+                return {eFAILED};
+            }
+            return _response.m_response;
         }
+
+        // const std::expected<std::string &, OmegaStatus> Header::get_value(const char *in_key)
+        // {
+        //     if (nullptr == in_key)
+        //         return std::unexpected{eFAILED};
+        //     const auto it = header.find(in_key);
+        //     if (header.end() != it)
+        //         return header.at(in_key);
+        //     return std::unexpected{eFAILED};
+        // }
     } // namespace WebServices
 } // namespace Omega
