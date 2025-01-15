@@ -1,4 +1,10 @@
 menu "OmegaWebServices Configuration"
+    config OMEGA_ENABLE_REQUESTS
+        bool "Enable Requests"
+        default "n"
+    config OMEGA_ENABLE_WEBSOCKET
+        bool "Enable Web Socket"
+        default "n"
     config OMEGA_WEB_SERVICES_DEBUG
         bool "Enable Web Services Debug logs"
         default "n"
