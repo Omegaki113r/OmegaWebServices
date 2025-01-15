@@ -1,0 +1,36 @@
+dependencies:
+  OmegaFileSystemController:
+    component_hash: 00dc1d66b1d17eb2af802ab880b45c6ec2b92b5daea8d795372fce4e510eba05
+    source:
+      git: https://github.com/Omegaki113r/OmegaFileSystemController.git
+      path: .
+      type: git
+    version: 4cebc2e9a63e399f00632ee0539c55bae43361c9
+  OmegaUtilityDriver:
+    component_hash: 6262c1990d93465c3e33187e4686296f4f798fcd57110fa035c5413ac7ba43dd
+    source:
+      git: https://github.com/Omegaki113r/OmegaUtilityDriver.git
+      path: .
+      type: git
+    version: ac8be4c137fb3614829b38ceb62892d56d902f0b
+  OmegaWiFiController:
+    component_hash: f4107a8a8b05bf1d6608f4bb1a0a4c33ff982c8d2db489e158222f0d131d1289
+    source:
+      git: https://github.com/Omegaki113r/OmegaWiFiController.git
+      path: .
+      type: git
+    version: 438224e900ded13885ba4412da80f952e085d6f6
+  espressif/esp_websocket_client:
+    component_hash: 8280960def8af4f84bc58d2d76f55357cd1387775cbc2e0a6b3ca229aa7e209e
+    source:
+      service_url: https://api.components.espressif.com/
+      type: service
+    version: 1.3.0
+  idf:
+    component_hash: null
+    source:
+      type: idf
+    version: 5.3.0
+manifest_hash: f17246a4866fdeb9b03cf5b779d916b7ec713a1a7119d7eeb64e893fb559a114
+target: esp32
+version: 1.0.0
