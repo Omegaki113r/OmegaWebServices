@@ -2,7 +2,7 @@
  * @file Request.hpp
  * @author Omegaki113r
  * @date Wednesday, 8th January 2025 12:44:32 am
- * @copyright Copyright <<projectCreationYear>> - 2025 0m3g4ki113r, Xtronic
+ * @copyright Copyright 2025 - 2025 0m3g4ki113r, Xtronic
  * */
 /*
  * Project: OmegaWebServices
@@ -10,10 +10,10 @@
  * File Created: Wednesday, 8th January 2025 12:44:32 am
  * Author: Omegaki113r (omegaki113r@gmail.com)
  * -----
- * Last Modified: Wednesday, 8th January 2025 12:45:57 am
+ * Last Modified: Thursday, 16th January 2025 12:51:01 am
  * Modified By: Omegaki113r (omegaki113r@gmail.com)
  * -----
- * Copyright <<projectCreationYear>> - 2025 0m3g4ki113r, Xtronic
+ * Copyright 2025 - 2025 0m3g4ki113r, Xtronic
  * -----
  * HISTORY:
  * Date      	By	Comments
@@ -21,17 +21,26 @@
  */
 #pragma once
 
-#include "OmegaWebServices/Authenticate.hpp"
+#include "OmegaWebServices/Authentication.hpp"
 #include "OmegaWebServices/Header.hpp"
+#include "OmegaWebServices/Response.hpp"
 
 namespace Omega
 {
     namespace WebServices
     {
-        struct Request
+        namespace Requests
         {
-            Authentication auth;
-            Header header;
-        };
+            typedef void (*data_callback_t)(const uint8_t *, const size_t);
+
+            Response GET(const std::string &);
+            Response GET(const char *);
+            Response GET(const char *, const char *, const char *);
+            Response GET(const char *, const Authentication &);
+            Response GET(const char *, const Header &);
+            Response GET(const char *, const Header &, const Authentication &);
+            Response GET(const char *, data_callback_t);
+            Response GET(const char *in_url, const Header &in_header, const Authentication &in_authentication, const data_callback_t in_callback);
+        } // namespace Requests
     } // namespace WebServices
 } // namespace Omega
