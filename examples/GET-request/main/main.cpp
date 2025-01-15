@@ -10,10 +10,13 @@
 #include <esp_wifi.h>
 #include <nvs_flash.h>
 
-#include "OmegaWebServices/WebServices.hpp"
+// #include "OmegaWebServices/WebServices.hpp"
+#include "OmegaWebServices/Request.hpp"
 #include "OmegaWiFiController/WiFiController.hpp"
 
-#define URL "https://httpbin.org/get"
+// #define URL "https://httpbin.org/get"
+// #define URL "https://httpbin.org/stream/1"
+#define URL "https://randomuser.me/api/"
 #define URL_LEN strlen(URL)
 
 extern "C" void app_main(void)
@@ -30,7 +33,7 @@ extern "C" void app_main(void)
     ::Omega::WiFiController::connect("Xtronic", "Om3gaki113r");
     ::Omega::WiFiController::wait_for_ip();
 
-    auto callback = [](const uint8_t *data, const size_t data_len)
+    const auto callback = [](const uint8_t *data, const size_t data_len)
     {
         OMEGA_LOGD("Length: %d", data_len);
         OMEGA_LOGD("Data: %s", (const char *)data);
