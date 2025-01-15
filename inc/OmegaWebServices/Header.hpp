@@ -2,7 +2,7 @@
  * @file Header.hpp
  * @author Omegaki113r
  * @date Wednesday, 8th January 2025 12:36:31 am
- * @copyright Copyright <<projectCreationYear>> - 2025 0m3g4ki113r, Xtronic
+ * @copyright Copyright 2025 - 2025 0m3g4ki113r, Xtronic
  * */
 /*
  * Project: OmegaWebServices
@@ -10,10 +10,10 @@
  * File Created: Wednesday, 8th January 2025 12:36:31 am
  * Author: Omegaki113r (omegaki113r@gmail.com)
  * -----
- * Last Modified: Tuesday, 14th January 2025 11:29:07 pm
+ * Last Modified: Wednesday, 15th January 2025 1:14:30 am
  * Modified By: Omegaki113r (omegaki113r@gmail.com)
  * -----
- * Copyright <<projectCreationYear>> - 2025 0m3g4ki113r, Xtronic
+ * Copyright 2025 - 2025 0m3g4ki113r, Xtronic
  * -----
  * HISTORY:
  * Date      	By	Comments

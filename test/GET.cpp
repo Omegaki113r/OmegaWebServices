@@ -2,7 +2,7 @@
  * @file GET.cpp
  * @author Omegaki113r
  * @date Sunday, 5th January 2025 1:08:05 am
- * @copyright Copyright <<projectCreationYear>> - 2025 0m3g4ki113r, Xtronic
+ * @copyright Copyright 2025 - 2025 0m3g4ki113r, Xtronic
  * */
 /*
  * Project: test
@@ -10,10 +10,10 @@
  * File Created: Sunday, 5th January 2025 1:08:05 am
  * Author: Omegaki113r (omegaki113r@gmail.com)
  * -----
- * Last Modified: Tuesday, 7th January 2025 12:10:36 am
+ * Last Modified: Wednesday, 15th January 2025 1:22:54 am
  * Modified By: Omegaki113r (omegaki113r@gmail.com)
  * -----
- * Copyright <<projectCreationYear>> - 2025 0m3g4ki113r, Xtronic
+ * Copyright 2025 - 2025 0m3g4ki113r, Xtronic
  * -----
  * HISTORY:
  * Date      	By	Comments
