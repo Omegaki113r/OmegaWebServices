@@ -18,7 +18,10 @@
 #include "OmegaWebServices/WebSocket.hpp"
 #include "OmegaWiFiController/WiFiController.hpp"
 
-#define URL "wss://ws.iot.arc.lv?type=DEVICE&deviceId=85395610-99d3-468b-b296-98ef0134fa36&password=mFOHDEM2z73MFLrO"
+// #define URL "wss://ws.iot.arc.lv?type=DEVICE&deviceId=85395610-99d3-468b-b296-98ef0134fa36&password=mFOHDEM2z73MFLrO"
+// #define URL_LEN strlen(URL)
+
+#define URL "ws://127.0.0.1:8765"
 #define URL_LEN strlen(URL)
 
 char app_token[255] = {0};

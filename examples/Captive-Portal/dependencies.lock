@@ -1,0 +1,28 @@
+dependencies:
+  OmegaUtilityDriver:
+    component_hash: c083f5bcaf5195e8443bed1565a236595ed51fad0d00d963c6dce5667b502f56
+    source:
+      git: https://github.com/Omegaki113r/OmegaUtilityDriver.git
+      path: .
+      type: git
+    version: 248076f8723ddbc2c82144c9e8fb1f97f28575d4
+  espressif/esp_websocket_client:
+    component_hash: 8280960def8af4f84bc58d2d76f55357cd1387775cbc2e0a6b3ca229aa7e209e
+    source:
+      service_url: https://api.components.espressif.com/
+      type: service
+    version: 1.3.0
+  espressif/mdns:
+    component_hash: d439c8c9f4a029f521fc772f5a1376af7972ffbad7ff353eff58d98258696633
+    source:
+      service_url: https://api.components.espressif.com/
+      type: service
+    version: 1.5.1
+  idf:
+    component_hash: null
+    source:
+      type: idf
+    version: 5.3.0
+manifest_hash: d6ef41e75da5163528f0a8cbb1f7d1cb57f288bc13042315e1e7b74e9ec400b1
+target: esp32s3
+version: 1.0.0
