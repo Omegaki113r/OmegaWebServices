@@ -10,7 +10,7 @@
  * File Created: Wednesday, 8th January 2025 12:44:32 am
  * Author: Omegaki113r (omegaki113r@gmail.com)
  * -----
- * Last Modified: Thursday, 16th January 2025 12:51:01 am
+ * Last Modified: Sunday, 9th February 2025 6:59:10 pm
  * Modified By: Omegaki113r (omegaki113r@gmail.com)
  * -----
  * Copyright 2025 - 2025 0m3g4ki113r, Xtronic
@@ -31,7 +31,7 @@ namespace Omega
     {
         namespace Requests
         {
-            typedef void (*data_callback_t)(const uint8_t *, const size_t);
+            typedef void (*data_callback_t)(const uint8_t *data, const size_t data_length);
 
             Response GET(const std::string &);
             Response GET(const char *);
