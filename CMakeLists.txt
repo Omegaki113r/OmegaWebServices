@@ -14,6 +14,11 @@ set(PROJ_DEPENDENCIES OmegaUtilityDriver)
     set( PROJ_DEPENDENCIES ${PROJ_DEPENDENCIES} esp_websocket_client)
 # endif()
 
+# if(CONFIG_OMEGA_ENABLE_MQTT)
+    set( PROJ_SOURCES ${PROJ_SOURCES} src/MQTT.cpp)
+    set( PROJ_DEPENDENCIES ${PROJ_DEPENDENCIES} mqtt)
+# endif()
+
 if(ESP_PLATFORM)
     idf_component_register( SRCS            ${PROJ_SOURCES}
                             INCLUDE_DIRS    ${PROJ_HEADER_DIRS}
