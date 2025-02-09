@@ -25,11 +25,17 @@
 #define BROKER_PORT 1883
 
 const auto on_connected = []()
-{ OMEGA_LOGI("On Connected"); };
+{
+    OMEGA_LOGI("On Connected");
+};
 const auto on_data = [](const u8 *data, size_t data_length)
-{ OMEGA_LOGI("On Data"); };
+{
+    OMEGA_LOGI("On Data");
+};
 const auto on_disconnected = []()
-{ OMEGA_LOGI("On Disconnected"); };
+{
+    OMEGA_LOGI("On Disconnected");
+};
 
 auto client = ::Omega::WebServices::MQTT::Client(BROKER_URL, BROKER_PORT)
                   .on_connected(on_connected)
