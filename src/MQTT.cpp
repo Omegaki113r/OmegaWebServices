@@ -10,7 +10,7 @@
  * File Created: Sunday, 9th February 2025 7:08:11 pm
  * Author: Omegaki113r (omegaki113r@gmail.com)
  * -----
- * Last Modified: Monday, 10th February 2025 2:05:45 am
+ * Last Modified: Monday, 10th February 2025 2:12:55 am
  * Modified By: Omegaki113r (omegaki113r@gmail.com)
  * -----
  * Copyright <<projectCreationYear>> - 2025 0m3g4ki113r, Xtronic
@@ -205,6 +205,8 @@ namespace Omega
                 }
                 return eSUCCESS;
             }
+
+            State Client::is_connected() const noexcept { return m_state; }
 
             void Client::publish(const char *topic, const char *data, size_t data_length, u8 qos, bool retain)
             {

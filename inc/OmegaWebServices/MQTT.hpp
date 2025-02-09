@@ -10,7 +10,7 @@
  * File Created: Sunday, 9th February 2025 7:00:28 pm
  * Author: Omegaki113r (omegaki113r@gmail.com)
  * -----
- * Last Modified: Monday, 10th February 2025 2:00:15 am
+ * Last Modified: Monday, 10th February 2025 2:12:11 am
  * Modified By: Omegaki113r (omegaki113r@gmail.com)
  * -----
  * Copyright <<projectCreationYear>> - 2025 0m3g4ki113r, Xtronic
@@ -182,11 +182,12 @@ namespace Omega
                     return *this;
                 }
 
-                void add_on_connected_handler(std::function<void(void)> connected_callback) { m_on_connected = connected_callback; }
-                void add_on_data_handler(std::function<void(const u8 *, size_t)> data_callback) { m_on_data = data_callback; }
-                void add_on_disconnected_handler(std::function<void(void)> disconnected_callback) { m_on_disconnected = disconnected_callback; }
-                OmegaStatus connect();
-                void publish(const char *topic, const char *data, size_t data_length, u8 qos = 0, bool retain = false);
+                void add_on_connected_handler(std::function<void(void)> connected_callback) noexcept { m_on_connected = connected_callback; }
+                void add_on_data_handler(std::function<void(const u8 *, size_t)> data_callback) noexcept { m_on_data = data_callback; }
+                void add_on_disconnected_handler(std::function<void(void)> disconnected_callback) noexcept { m_on_disconnected = disconnected_callback; }
+                OmegaStatus connect() noexcept;
+                State is_connected() const noexcept;
+                void publish(const char *topic, const char *data, size_t data_length, u8 qos = 0, bool retain = false) noexcept;
 
                 ~Client();
             };

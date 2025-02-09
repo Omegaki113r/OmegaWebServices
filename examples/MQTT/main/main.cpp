@@ -53,10 +53,13 @@ extern "C" void app_main(void)
     client.connect();
     for (;;)
     {
-        const char *topic = "/Elma/EABC12";
-        const char *data = "world";
-        client.publish(topic, data, std::strlen(data), 1);
-        OMEGA_LOGI("[%s] => %s", topic, data);
+        if (client.is_connected() == ::Omega::WebServices::MQTT::State::eCONNECTED)
+        {
+            const char *topic = "/Elma/EABC12";
+            const char *data = "world";
+            client.publish(topic, data, std::strlen(data), 1);
+            OMEGA_LOGI("[%s] => %s", topic, data);
+        }
         delay({0, 0, 5});
     }
 }
