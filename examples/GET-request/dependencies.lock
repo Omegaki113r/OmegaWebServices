@@ -1,30 +1,43 @@
 dependencies:
+  OmegaESP32xxNVSController:
+    component_hash: f198e3cf950f071e74a5c584c1596e3bd8e7f50781b1772f95de323e66a19829
+    source:
+      git: https://github.com/Omegaki113r/OmegaESP32xxNVSController.git
+      path: .
+      type: git
+    version: 5da3446ee02e1d405c8bc3332bcd4bc29cd51158
   OmegaFileSystemController:
-    component_hash: 00dc1d66b1d17eb2af802ab880b45c6ec2b92b5daea8d795372fce4e510eba05
+    component_hash: ea79a391310379f522a5eb815e714826c2a02b5ba5b40f5998f6beb78d0d63eb
     source:
       git: https://github.com/Omegaki113r/OmegaFileSystemController.git
       path: .
       type: git
-    version: 4cebc2e9a63e399f00632ee0539c55bae43361c9
+    version: 8e15ec5d73059005565bc560b71603b809bd7f44
   OmegaUtilityDriver:
-    component_hash: 6262c1990d93465c3e33187e4686296f4f798fcd57110fa035c5413ac7ba43dd
+    component_hash: 60d29f8eb96022ee1ed8e65eefc84c407c8712f8838482f4a8aee22d6b031295
     source:
       git: https://github.com/Omegaki113r/OmegaUtilityDriver.git
       path: .
       type: git
-    version: ac8be4c137fb3614829b38ceb62892d56d902f0b
+    version: 10480f91b47799a24fa16b0f2abedf2b77f260a7
   OmegaWiFiController:
-    component_hash: f4107a8a8b05bf1d6608f4bb1a0a4c33ff982c8d2db489e158222f0d131d1289
+    component_hash: 7954a3fe817abfe9162c90d07f3f93543c5f2785d390bc0c54487adc94ff73f1
     source:
       git: https://github.com/Omegaki113r/OmegaWiFiController.git
       path: .
       type: git
-    version: 438224e900ded13885ba4412da80f952e085d6f6
+    version: 59391fb68097702baa9837c036790c4dd28d2fb9
+  espressif/esp_websocket_client:
+    component_hash: f77326f0e1c38da4e9c97e17c5d649b0dd13027f2645e720e48db269638fd622
+    source:
+      service_url: https://api.components.espressif.com/
+      type: service
+    version: 1.4.0
   idf:
     component_hash: null
     source:
       type: idf
     version: 5.3.0
-manifest_hash: c6ce685469a0b7971546b08569badc3ec5cf82530c652cf6cc1c1b031e6f205f
-target: esp32
+manifest_hash: ebaf4f3d053317badee1c56698a52bef49f2484489b8e7360512a963603a76d4
+target: esp32s3
 version: 1.0.0

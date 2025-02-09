@@ -1,6 +1,6 @@
 {
     "idf.flashType": "UART",
-    "idf.portWin": "COM22",
+    "idf.portWin": "COM19",
     "files.associations": {
         "cstring": "cpp",
         "array": "cpp",
@@ -70,5 +70,9 @@
         "typeinfo": "cpp",
         "variant": "cpp",
         "expected": "cpp"
-    }
+    },
+    "idf.openOcdConfigs": [
+        "interface/ftdi/esp32_devkitj_v1.cfg",
+        "target/esp32s3.cfg"
+    ]
 }

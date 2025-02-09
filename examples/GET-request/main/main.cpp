@@ -38,7 +38,7 @@ extern "C" void app_main(void)
         OMEGA_LOGD("Length: %d", data_len);
         OMEGA_LOGD("Data: %s", (const char *)data);
     };
-    const auto [status, data] = ::Omega::WebServices::GET(URL, callback);
+    const auto [status, data] = ::Omega::WebServices::Requests::GET(URL, callback);
     if (eSUCCESS != status)
     {
         OMEGA_LOGE("Request failed");
