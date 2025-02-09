@@ -22,10 +22,19 @@
 
 #define BROKER_URL "broker.hivemq.com"
 #define BROKER_URL_LEN strlen(BROKER_URL)
-
 #define BROKER_PORT 1883
-#define BROKER_USERNAME "Ytronic"
-#define BROKER_PASSWORD "@M0irana"
+
+const auto on_connected = []()
+{ OMEGA_LOGI("On Connected"); };
+const auto on_data = [](const u8 *data, size_t data_length)
+{ OMEGA_LOGI("On Data"); };
+const auto on_disconnected = []()
+{ OMEGA_LOGI("On Disconnected"); };
+
+auto client = ::Omega::WebServices::MQTT::Client(BROKER_URL, BROKER_PORT)
+                  .on_connected(on_connected)
+                  .on_data(on_data)
+                  .on_disconnected(on_disconnected);
 
 extern "C" void app_main(void)
 {
@@ -41,15 +50,13 @@ extern "C" void app_main(void)
     ::Omega::WiFiController::connect("Xtronic", "Om3gaki113r");
     ::Omega::WiFiController::wait_for_ip();
 
-    // const auto state = ::Omega::WebServices::MQTT::CLIENT::connect(BROKER_URL, BROKER_PORT,
-    //                                                                BROKER_USERNAME, BROKER_PASSWORD);
-    const auto state = ::Omega::WebServices::MQTT::CLIENT::connect(BROKER_URL, BROKER_PORT);
+    client.connect();
     for (;;)
     {
-        delay({0, 0, 5});
         const char *topic = "/Elma/EABC12";
         const char *data = "world";
-        ::Omega::WebServices::MQTT::CLIENT::publish(topic, data, std::strlen(data));
+        client.publish(topic, data, std::strlen(data), 1);
         OMEGA_LOGI("[%s] => %s", topic, data);
+        delay({0, 0, 5});
     }
 }
