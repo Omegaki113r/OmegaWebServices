@@ -2,17 +2,17 @@
 @file websocket-server.py
 @author Omegaki113r
 @date Tuesday, 21st January 2025 11:05:14 pm
-@copyright Copyright <<projectCreationYear>> - 2025 0m3g4ki113r, Xtronic
+@copyright Copyright 2025 - 2025 0m3g4ki113r, Xtronic
 *//*
 Project: test-scripts
 File Name: websocket-server.py
 File Created: Tuesday, 21st January 2025 11:05:14 pm
 Author: Omegaki113r (omegaki113r@gmail.com)
 -----
-Last Modified: Tuesday, 21st January 2025 11:19:37 pm
+Last Modified: Monday, 10th February 2025 3:48:29 am
 Modified By: Omegaki113r (omegaki113r@gmail.com)
 -----
-Copyright <<projectCreationYear>> - 2025 0m3g4ki113r, Xtronic
+Copyright 2025 - 2025 0m3g4ki113r, Xtronic
 -----
 HISTORY:
 Date      	By	Comments
