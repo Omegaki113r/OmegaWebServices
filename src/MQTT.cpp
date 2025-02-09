@@ -2,7 +2,7 @@
  * @file MQTT.cpp
  * @author Omegaki113r
  * @date Sunday, 9th February 2025 7:08:11 pm
- * @copyright Copyright <<projectCreationYear>> - 2025 0m3g4ki113r, Xtronic
+ * @copyright Copyright 2025 - 2025 0m3g4ki113r, Xtronic
  * */
 /*
  * Project: src
@@ -10,10 +10,10 @@
  * File Created: Sunday, 9th February 2025 7:08:11 pm
  * Author: Omegaki113r (omegaki113r@gmail.com)
  * -----
- * Last Modified: Monday, 10th February 2025 2:33:46 am
+ * Last Modified: Monday, 10th February 2025 3:48:29 am
  * Modified By: Omegaki113r (omegaki113r@gmail.com)
  * -----
- * Copyright <<projectCreationYear>> - 2025 0m3g4ki113r, Xtronic
+ * Copyright 2025 - 2025 0m3g4ki113r, Xtronic
  * -----
  * HISTORY:
  * Date      	By	Comments
@@ -81,7 +81,7 @@ namespace Omega
                 if (nullptr != uri)
                 {
                     LOGD("Configuring with URI with transport: %d", static_cast<u8>(uri->m_transport));
-                    const esp_mqtt_client_config_t::broker_t::address_t address{.uri = uri->m_uri, .transport = static_cast<esp_mqtt_transport_t>(uri->m_transport)};
+                    const esp_mqtt_client_config_t::broker_t::address_t address{.uri = uri->m_uri};
                     const esp_mqtt_client_config_t::broker_t broker{address};
                     if (m_authentication.has_value())
                     {
@@ -213,7 +213,7 @@ namespace Omega
                     return;
                 }
                 const auto message_id = esp_mqtt_client_publish(m_handle, topic, data, data_length, qos, retain);
-                LOGD("MessageID: %d", message_id);
+                // LOGD("MessageID: %d", message_id);
             }
 
             Client::~Client() {}

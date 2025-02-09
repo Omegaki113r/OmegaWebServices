@@ -6,3 +6,6 @@ dependencies:
   OmegaWiFiController:
     git: https://github.com/Omegaki113r/OmegaWiFiController.git
     version: cpp-dev
+  OmegaESP32xxNVSController:
+    git: https://github.com/Omegaki113r/OmegaESP32xxNVSController.git
+    version: cpp-dev

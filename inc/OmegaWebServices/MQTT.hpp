@@ -2,7 +2,7 @@
  * @file MQTT.hpp
  * @author Omegaki113r
  * @date Sunday, 9th February 2025 7:00:28 pm
- * @copyright Copyright <<projectCreationYear>> - 2025 0m3g4ki113r, Xtronic
+ * @copyright Copyright 2025 - 2025 0m3g4ki113r, Xtronic
  * */
 /*
  * Project: OmegaWebServices
@@ -10,10 +10,10 @@
  * File Created: Sunday, 9th February 2025 7:00:28 pm
  * Author: Omegaki113r (omegaki113r@gmail.com)
  * -----
- * Last Modified: Monday, 10th February 2025 2:12:11 am
+ * Last Modified: Monday, 10th February 2025 3:48:29 am
  * Modified By: Omegaki113r (omegaki113r@gmail.com)
  * -----
- * Copyright <<projectCreationYear>> - 2025 0m3g4ki113r, Xtronic
+ * Copyright 2025 - 2025 0m3g4ki113r, Xtronic
  * -----
  * HISTORY:
  * Date      	By	Comments
@@ -98,6 +98,7 @@ namespace Omega
                     }
                     strncpy(m_uri, uri, OMEGA_MIN(sizeof(m_uri), std::strlen(uri)));
                     m_uri[std::strlen(uri)] = '\0';
+
                     m_transport = transport;
                 }
             };

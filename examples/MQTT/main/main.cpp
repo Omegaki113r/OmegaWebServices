@@ -1,4 +1,6 @@
+#include <cstdlib>
 #include <cstring>
+#include <ctime>
 #include <stdio.h>
 #include <variant>
 #include <vector>
@@ -10,6 +12,7 @@
 #include <esp_wifi.h>
 #include <nvs_flash.h>
 
+#include "OmegaESP32xxNVSController/ESP32xxNVSController.hpp"
 #include "OmegaWebServices/MQTT.hpp"
 #include "OmegaWiFiController/WiFiController.hpp"
 
@@ -37,20 +40,37 @@ const auto on_disconnected = []()
     OMEGA_LOGI("On Disconnected");
 };
 
-auto client = ::Omega::WebServices::MQTT::Client(BROKER_URL, BROKER_PORT)
+auto client = ::Omega::WebServices::MQTT::Client("192.168.1.2", 1883)
                   .on_connected(on_connected)
                   .on_data(on_data)
                   .on_disconnected(on_disconnected);
 
+const int DATA_SIZE = 30 * 1024;
+const char *generateRandomData()
+{
+    static char randomData[DATA_SIZE];                                                                        // Make sure the data stays in scope
+    const char charset[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_-+=<>?"; // Characters to pick from
+    const int charsetSize = sizeof(charset) - 1;                                                              // Exclude the null-terminator
+
+    for (int i = 0; i < DATA_SIZE - 1; ++i)
+    { // Fill the array with random data
+        randomData[i] = charset[rand() % charsetSize];
+    }
+
+    randomData[DATA_SIZE - 1] = '\0'; // Null-terminate the string
+    return randomData;                // Return the pointer to the generated data
+}
+const char *randomString = generateRandomData();
+
 extern "C" void app_main(void)
 {
-    esp_err_t ret = nvs_flash_init();
-    if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND)
+    if (const auto err = ::Omega::NVS::init(); eSUCCESS != err)
     {
-        ESP_ERROR_CHECK(nvs_flash_erase());
-        ret = nvs_flash_init();
+        OMEGA_LOGE("NVS Init failed");
+        return;
     }
-    ESP_ERROR_CHECK(ret);
+
+    std::srand(std::time(0));
 
     ::Omega::WiFiController::initialize(::Omega::WiFiController::Mode::eSTATION_MODE);
     ::Omega::WiFiController::connect("Xtronic", "Om3gaki113r");
@@ -62,10 +82,10 @@ extern "C" void app_main(void)
         if (client.is_connected() == ::Omega::WebServices::MQTT::State::eCONNECTED)
         {
             const char *topic = "/Elma/EABC12";
-            const char *data = "world";
-            client.publish(topic, data, std::strlen(data), 1);
-            OMEGA_LOGI("[%s] => %s", topic, data);
+            const char *data = "";
+            client.publish(topic, randomString, std::strlen(randomString), 1);
+            // OMEGA_LOGI("[%s] => %s", topic, data);
         }
-        delay({0, 0, 5});
+        delay({0, 0, 0, 100});
     }
 }
