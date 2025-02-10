@@ -1,0 +1,13 @@
+## IDF Component Manager Manifest File
+dependencies:
+  ## Required IDF version
+  idf:
+    version: ">=4.1.0"
+  OmegaWiFiController:
+    git: https://github.com/Omegaki113r/OmegaWiFiController.git
+    version: cpp-dev
+  OmegaESP32xxNVSController:
+    git: https://github.com/Omegaki113r/OmegaESP32xxNVSController.git
+    version: cpp-dev
+  OmegaFileSystemController:
+    git: https://github.com/Omegaki113r/OmegaFileSystemController.git
