@@ -41,30 +41,30 @@ let dataRateMbps = 0; // Data rate in megabits per second
 
 // Setup the broker's on 'publish' event to log when a message is published
 aedes.on('publish', (packet, client) => {
-    const currentTimestamp = Date.now();
+    // const currentTimestamp = Date.now();
 
-    // Calculate the size of the payload (in bytes)
-    const payloadSize = packet.payload.length;
+    // // Calculate the size of the payload (in bytes)
+    // const payloadSize = packet.payload.length;
 
-    // Accumulate the total data
-    totalData += payloadSize;
+    // // Accumulate the total data
+    // totalData += payloadSize;
 
-    // Calculate the time elapsed since the last message
-    const elapsedTime = (currentTimestamp - lastTimestamp) / 1000; // in seconds
+    // // Calculate the time elapsed since the last message
+    // const elapsedTime = (currentTimestamp - lastTimestamp) / 1000; // in seconds
 
-    if (elapsedTime > 0) {
-        // Calculate data rate in bytes per second
-        dataRate = totalData / elapsedTime;
+    // if (elapsedTime > 0) {
+    //     // Calculate data rate in bytes per second
+    //     dataRate = totalData / elapsedTime;
 
-        // Convert data rate to kilobytes per second (KBps)
-        dataRateKBps = dataRate / 1024; // 1 KB = 1024 bytes
+    //     // Convert data rate to kilobytes per second (KBps)
+    //     dataRateKBps = dataRate / 1024; // 1 KB = 1024 bytes
 
-        // Convert data rate to megabytes per second (MBps)
-        dataRateMBps = dataRate / 1048576; // 1 MB = 1024 * 1024 bytes
+    //     // Convert data rate to megabytes per second (MBps)
+    //     dataRateMBps = dataRate / 1048576; // 1 MB = 1024 * 1024 bytes
 
-        // Convert data rate to megabits per second (Mbps)
-        dataRateMbps = dataRate * 8 / 1048576; // Convert bytes/sec to bits/sec and then to megabits
-    }
+    //     // Convert data rate to megabits per second (Mbps)
+    //     dataRateMbps = dataRate * 8 / 1048576; // Convert bytes/sec to bits/sec and then to megabits
+    // }
 
     // Log the topic, payload, and incoming data rate
     // console.log('Message Published:');
@@ -74,11 +74,11 @@ aedes.on('publish', (packet, client) => {
     // console.log('Elapsed Time (seconds):', elapsedTime);
     // console.log('Incoming Data Rate (bytes/sec):', dataRate);
     // console.log('Incoming Data Rate (KB/sec):', dataRateKBps.toFixed(2)); // Display with 2 decimal points
-    console.log('Incoming Data Rate (MB/sec):', dataRateMBps.toFixed(4)); // Display with 4 decimal points for MBps
+    // console.log('Incoming Data Rate (MB/sec):', dataRateMBps.toFixed(4)); // Display with 4 decimal points for MBps
     // console.log('Incoming Data Rate (Mbps):', dataRateMbps.toFixed(4)); // Display with 4 decimal points for Mbps
 
     // Update the last timestamp
-    lastTimestamp = currentTimestamp;
+    // lastTimestamp = currentTimestamp;
 });
 
 

@@ -8,11 +8,14 @@
 #include <esp_err.h>
 #include <esp_http_client.h>
 #include <esp_log.h>
+#include <esp_spiffs.h>
+#include <esp_timer.h>
 #include <esp_tls.h>
 #include <esp_wifi.h>
 #include <nvs_flash.h>
 
 #include "OmegaESP32xxNVSController/ESP32xxNVSController.hpp"
+#include "OmegaFileSystemController/FileSystemController.hpp"
 #include "OmegaWebServices/MQTT.hpp"
 #include "OmegaWiFiController/WiFiController.hpp"
 
@@ -62,6 +65,8 @@ const char *generateRandomData()
 }
 const char *randomString = generateRandomData();
 
+u8 buffer[2000]{0};
+
 extern "C" void app_main(void)
 {
     if (const auto err = ::Omega::NVS::init(); eSUCCESS != err)
@@ -77,14 +82,18 @@ extern "C" void app_main(void)
     ::Omega::WiFiController::wait_for_ip();
 
     client.connect();
+    while (::Omega::WebServices::MQTT::State::eCONNECTED != client.is_connected())
+    {
+        delay({0, 0, 0, 500});
+    }
     for (;;)
     {
-        if (client.is_connected() == ::Omega::WebServices::MQTT::State::eCONNECTED)
+        if (::Omega::WebServices::MQTT::State::eCONNECTED == client.is_connected())
         {
             const char *topic = "/Elma/EABC12";
             const char *data = "";
             client.publish(topic, randomString, std::strlen(randomString), 1);
-            // OMEGA_LOGI("[%s] => %s", topic, data);
+            OMEGA_LOGI("[%s] => %s", topic, data);
         }
         delay({0, 0, 0, 100});
     }

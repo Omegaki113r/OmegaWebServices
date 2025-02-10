@@ -11,3 +11,6 @@ add_compile_definitions(CONFIG_OMEGA_LOGGING=1)
 
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 project(MQTT)
+
+
+spiffs_create_partition_image(storage storage FLASH_IN_PROJECT)
