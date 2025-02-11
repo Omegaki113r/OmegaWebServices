@@ -17,6 +17,8 @@
 // #define URL "https://httpbin.org/get"
 // #define URL "https://httpbin.org/stream/1"
 #define URL "https://randomuser.me/api/"
+// #define URL "http://192.168.1.4:3000/uploads/"
+// #define URL "http://127.0.0.1:3000/uploads/"
 #define URL_LEN strlen(URL)
 
 extern "C" void app_main(void)

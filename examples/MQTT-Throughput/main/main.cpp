@@ -43,7 +43,7 @@ const auto on_disconnected = []()
     OMEGA_LOGI("On Disconnected");
 };
 
-auto client = ::Omega::WebServices::MQTT::Client("192.168.1.2", 1883)
+auto client = ::Omega::WebServices::MQTT::Client("192.168.1.4", 1883)
                   .on_connected(on_connected)
                   .on_data(on_data)
                   .on_disconnected(on_disconnected);

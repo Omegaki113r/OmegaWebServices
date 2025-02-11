@@ -10,7 +10,7 @@
  * File Created: Wednesday, 15th January 2025 2:30:10 am
  * Author: Omegaki113r (omegaki113r@gmail.com)
  * -----
- * Last Modified: Tuesday, 11th February 2025 2:11:41 pm
+ * Last Modified: Tuesday, 11th February 2025 2:39:23 pm
  * Modified By: Omegaki113r (omegaki113r@gmail.com)
  * -----
  * Copyright 2025 - 2025 0m3g4ki113r, Xtronic
@@ -23,6 +23,8 @@
 #pragma once
 
 #include <string>
+
+#include <esp_websocket_client.h>
 
 #include "OmegaWebServices/Authentication.hpp"
 
@@ -67,10 +69,16 @@ namespace Omega
         {
             namespace Client
             {
-                OmegaStatus Init(const char *in_url);
-                OmegaStatus Init(const char *in_url, const Authentication &in_auth);
-                OmegaStatus Init(const char *in_url, const char *in_username, const char *in_password);
-                OmegaStatus send(const char *path, const char *data, size_t data_length);
+                struct WSConnection
+                {
+                    OmegaStatus state;
+                    esp_websocket_client_handle_t handle;
+                };
+
+                WSConnection Init(const char *in_url);
+                WSConnection Init(const char *in_url, const Authentication &in_auth);
+                WSConnection Init(const char *in_url, const char *in_username, const char *in_password);
+                OmegaStatus send(esp_websocket_client_handle_t handle, const char *path, const char *data, size_t data_length);
                 bool is_connected();
                 __attribute__((weak)) void on_data(const u8 *data, const size_t data_len);
             } // namespace Client

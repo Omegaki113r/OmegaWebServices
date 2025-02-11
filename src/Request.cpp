@@ -10,7 +10,7 @@
  * File Created: Wednesday, 15th January 2025 2:22:51 am
  * Author: Omegaki113r (omegaki113r@gmail.com)
  * -----
- * Last Modified: Sunday, 9th February 2025 10:22:14 pm
+ * Last Modified: Tuesday, 11th February 2025 9:51:39 pm
  * Modified By: Omegaki113r (omegaki113r@gmail.com)
  * -----
  * Copyright 2025 - 2025 0m3g4ki113r, Xtronic
@@ -192,6 +192,108 @@ namespace Omega
                     //     return {eFAILED};
                     // }
                 }
+                if (ESP_OK != esp_http_client_perform(handle))
+                {
+                    LOGE("esp_http_client_perform failed");
+                    return {eFAILED};
+                }
+                if (ESP_OK != esp_http_client_cleanup(handle))
+                {
+                    LOGE("esp_http_client_cleanup failed");
+                    return {eFAILED};
+                }
+                return _response.m_response;
+            }
+
+            Response POST(const char *in_url, const Header &in_header, const Authentication &in_authentication, const data_callback_t in_callback)
+            {
+                if (nullptr == in_url || 0 == std::strlen(in_url))
+                {
+                    LOGE("Provided URL is invalid");
+                    return {eFAILED};
+                }
+                const auto http_event_handler = [](esp_http_client_event_t *evt)
+                {
+                    auto response = static_cast<_Response *>(evt->user_data);
+                    switch (evt->event_id)
+                    {
+                    case HTTP_EVENT_ERROR:
+                    {
+                        LOGE("HTTP_EVENT_ERROR");
+                        break;
+                    }
+                    case HTTP_EVENT_ON_CONNECTED:
+                    {
+                        LOGD("HTTP_EVENT_ON_CONNECTED");
+                        break;
+                    }
+                    case HTTP_EVENT_HEADER_SENT:
+                    {
+                        LOGD("HTTP_EVENT_HEADERS_SENT/HTTP_EVENT_HEADER_SENT");
+                        break;
+                    }
+                    case HTTP_EVENT_ON_HEADER:
+                    {
+                        LOGD("HTTP_EVENT_ON_HEADER");
+                        response->m_response.data.header.add_header(evt->header_key, evt->header_value);
+                        break;
+                    }
+                    case HTTP_EVENT_ON_DATA:
+                    {
+                        LOGD("HTTP_EVENT_ON_DATA");
+                        const auto *data = static_cast<const u8 *>(evt->data);
+                        const auto data_len = evt->data_len;
+                        if (esp_http_client_is_chunked_response(evt->client))
+                        {
+                            if (nullptr != response->m_callback)
+                                response->m_callback(data, data_len);
+                        }
+                        else
+                        {
+                            response->m_response.data.body = static_cast<u8 *>(omega_malloc(sizeof(u8) * data_len));
+                            if (nullptr == response->m_response.data.body)
+                            {
+                                LOGE("Allocating memory failed for body");
+                                return ESP_FAIL;
+                            }
+                            UNUSED(std::memcpy(response->m_response.data.body, data, data_len));
+                        }
+                        break;
+                    }
+                    case HTTP_EVENT_ON_FINISH:
+                    {
+                        LOGD("HTTP_EVENT_ON_FINISH");
+                        break;
+                    }
+                    case HTTP_EVENT_DISCONNECTED:
+                    {
+                        LOGD("HTTP_EVENT_DISCONNECTED");
+                        break;
+                    }
+                    case HTTP_EVENT_REDIRECT:
+                    {
+                        LOGD("HTTP_EVENT_REDIRECT");
+                        break;
+                    }
+                    default:
+                    {
+                        LOGE("Unhandled event: %d", evt->event_id);
+                        break;
+                    }
+                    }
+                    return ESP_OK;
+                };
+                Response response{};
+                _Response _response{in_url, in_header, in_authentication, in_callback, response};
+                const esp_http_client_config_t http_config{
+                    .url = in_url,
+                    .username = in_authentication.username,
+                    .password = in_authentication.password,
+                    .method = HTTP_METHOD_POST,
+                    .event_handler = http_event_handler,
+                    .user_data = &_response,
+                };
+                esp_http_client_handle_t handle = esp_http_client_init(&http_config);
                 if (ESP_OK != esp_http_client_perform(handle))
                 {
                     LOGE("esp_http_client_perform failed");

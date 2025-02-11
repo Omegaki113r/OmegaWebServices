@@ -10,7 +10,7 @@
  * File Created: Wednesday, 8th January 2025 12:44:32 am
  * Author: Omegaki113r (omegaki113r@gmail.com)
  * -----
- * Last Modified: Sunday, 9th February 2025 10:25:15 pm
+ * Last Modified: Tuesday, 11th February 2025 9:49:18 pm
  * Modified By: Omegaki113r (omegaki113r@gmail.com)
  * -----
  * Copyright 2025 - 2025 0m3g4ki113r, Xtronic
@@ -74,6 +74,7 @@ namespace Omega
             Response GET(const char *, const Header &, const Authentication &);
             Response GET(const char *, data_callback_t);
             Response GET(const char *in_url, const Header &in_header, const Authentication &in_authentication, const data_callback_t in_callback);
+            Response POST(const char *in_url, const Header &in_header, const Authentication &in_authentication, const data_callback_t in_callback);
         } // namespace Requests
     } // namespace WebServices
 } // namespace Omega

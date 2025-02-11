@@ -5,6 +5,7 @@
 #include <variant>
 #include <vector>
 
+#include "esp_vfs_fat.h"
 #include <esp_err.h>
 #include <esp_http_client.h>
 #include <esp_log.h>
@@ -43,8 +44,8 @@ const auto on_disconnected = []()
     OMEGA_LOGI("On Disconnected");
 };
 
-const int DATA_SIZE = 100 * 1024;
-u8 buffer[DATA_SIZE]{0};
+const int DATA_SIZE = 64 * 1024;
+DMA_ATTR u8 buffer[DATA_SIZE]{0};
 
 extern "C" void app_main(void)
 {
@@ -56,7 +57,7 @@ extern "C" void app_main(void)
     esp_vfs_spiffs_conf_t spiffs_config = {
         .base_path = "/storage",
         .max_files = 5,
-        .format_if_mount_failed = false,
+        .format_if_mount_failed = true,
     };
     ESP_ERROR_CHECK(esp_vfs_spiffs_register(&spiffs_config));
 
@@ -64,12 +65,12 @@ extern "C" void app_main(void)
     ::Omega::WiFiController::connect("Xtronic", "Om3gaki113r");
     ::Omega::WiFiController::wait_for_ip();
 
-    auto ws = ::Omega::WebServices::WebSocket::Client::Init("ws://192.168.1.2:8080");
-
+    auto [ws, wshandle] = ::Omega::WebServices::WebSocket::Client::Init("ws://192.168.1.4:8080");
 start:
     const auto start_time = esp_timer_get_time();
     const auto handle = ::Omega::FileSystemController::open("/storage/log.txt", ::Omega::FileSystemController::OpenMode::eREADING_MODE);
     size_t sent_size = 0;
+    bool is_initial = true;
     for (;;)
     {
         if (::Omega::WebServices::WebSocket::Client::is_connected())
@@ -81,21 +82,30 @@ start:
             if (read_size > 0)
             {
                 const char *topic = "/Elma/EABC12";
-                // client.publish(topic, (const char *)buffer, read_size);
-                ::Omega::WebServices::WebSocket::Client::send(topic, (const char *)buffer, read_size);
+                if (is_initial)
+                {
+                    esp_websocket_client_send_bin_partial(wshandle, (const char *)buffer, read_size, portMAX_DELAY);
+                    is_initial = false;
+                }
+                else
+                {
+                    esp_websocket_client_send_cont_msg(wshandle, (const char *)buffer, read_size, 0);
+                }
                 sent_size += read_size;
             }
             else
             {
+                esp_websocket_client_send_fin(wshandle, portMAX_DELAY);
                 OMEGA_LOGI("%.1f MB | %lld ms", ((float)sent_size) / (1024.0f * 1024.0f), (esp_timer_get_time() - start_time) / 1000);
                 sent_size = 0;
                 ::Omega::FileSystemController::close(handle);
                 goto start;
             }
+            // delay({0, 0, 5});
         }
         else
         {
-            delay({0, 0, 0, 500});
+            // delay({0, 0, 0, 500});
         }
     }
 }

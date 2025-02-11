@@ -14,19 +14,19 @@ dependencies:
       type: git
     version: 8e15ec5d73059005565bc560b71603b809bd7f44
   OmegaUtilityDriver:
-    component_hash: 60d29f8eb96022ee1ed8e65eefc84c407c8712f8838482f4a8aee22d6b031295
+    component_hash: 66d27999d77127db24175a9728bcb8a125a2f4c7b8074080dd11b6673b198a86
     source:
       git: https://github.com/Omegaki113r/OmegaUtilityDriver.git
       path: .
       type: git
-    version: 10480f91b47799a24fa16b0f2abedf2b77f260a7
+    version: 9125ddde18e992ac4c3f91d526920c19e7f062c5
   OmegaWiFiController:
-    component_hash: 7954a3fe817abfe9162c90d07f3f93543c5f2785d390bc0c54487adc94ff73f1
+    component_hash: c2f2e9ccde3dc2bb802415a582013fd9aa531243740075e6396f26949404e163
     source:
       git: https://github.com/Omegaki113r/OmegaWiFiController.git
       path: .
       type: git
-    version: 59391fb68097702baa9837c036790c4dd28d2fb9
+    version: 656669f6bf9ebfb34c1524498fede0fb5de3e2e7
   espressif/esp_websocket_client:
     component_hash: f77326f0e1c38da4e9c97e17c5d649b0dd13027f2645e720e48db269638fd622
     source:

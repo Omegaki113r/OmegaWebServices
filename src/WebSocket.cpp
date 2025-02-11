@@ -10,7 +10,7 @@
  * File Created: Wednesday, 15th January 2025 2:30:53 am
  * Author: Omegaki113r (omegaki113r@gmail.com)
  * -----
- * Last Modified: Tuesday, 11th February 2025 2:13:31 pm
+ * Last Modified: Tuesday, 11th February 2025 2:41:14 pm
  * Modified By: Omegaki113r (omegaki113r@gmail.com)
  * -----
  * Copyright 2025 - 2025 0m3g4ki113r, Xtronic
@@ -68,22 +68,21 @@ namespace Omega
         {
             namespace Client
             {
-                esp_websocket_client_handle_t handle;
                 bool s_is_connected = false;
 
-                OmegaStatus Init(const char *in_url) { return Init(in_url, nullptr, nullptr); }
+                WSConnection Init(const char *in_url) { return Init(in_url, nullptr, nullptr); }
 
-                OmegaStatus Init(const char *in_url, const Authentication &in_auth) { return Init(in_url, in_auth.username, in_auth.password); }
+                WSConnection Init(const char *in_url, const Authentication &in_auth) { return Init(in_url, in_auth.username, in_auth.password); }
 
-                OmegaStatus Init(const char *in_url, const char *in_username, const char *in_password)
+                WSConnection Init(const char *in_url, const char *in_username, const char *in_password)
                 {
                     if (nullptr == in_url || 0 == std::strlen(in_url))
                     {
                         LOGE("Provided URL is invalid");
-                        return eFAILED;
+                        return {eFAILED};
                     }
                     const esp_websocket_client_config_t config{.uri = in_url, .username = in_username, .password = in_password};
-                    handle = esp_websocket_client_init(&config);
+                    const auto handle = esp_websocket_client_init(&config);
                     const auto callback = [](void *event_handler_arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
                     {
                         esp_websocket_event_data_t *data = (esp_websocket_event_data_t *)event_data;
@@ -145,17 +144,17 @@ namespace Omega
                     if (ESP_OK != esp_websocket_register_events(handle, WEBSOCKET_EVENT_ANY, callback, NULL))
                     {
                         LOGE("esp_websocket_register_events failed");
-                        return eFAILED;
+                        return {eFAILED};
                     }
                     if (ESP_OK != esp_websocket_client_start(handle))
                     {
                         LOGE("esp_websocket_client_start failed");
-                        return eFAILED;
+                        return {eFAILED};
                     }
-                    return eSUCCESS;
+                    return {eSUCCESS, handle};
                 }
 
-                OmegaStatus send(const char *path, const char *data, size_t data_length)
+                OmegaStatus send(esp_websocket_client_handle_t handle, const char *path, const char *data, size_t data_length)
                 {
                     esp_websocket_client_send_bin(handle, data, data_length, portMAX_DELAY);
                     return eSUCCESS;
