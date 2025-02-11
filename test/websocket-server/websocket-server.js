@@ -27,20 +27,25 @@ const wss = new WebSocket.Server({ port: 8080 });
 
 // Handle connection event
 wss.on('connection', (ws) => {
-    // console.log('Client connected');
+    console.log('Client connected');
 
     // Send a message to the client
     // ws.send('Hello from WebSocket server');
 
     // Handle incoming messages from clients
     ws.on('message', (message) => {
-        // console.log('Received message:', message);
+        console.log('Received message:', message);
     });
 
     // Handle client disconnection
     ws.on('close', () => {
         console.log('Client disconnected');
     });
+
+    // ws catch errors
+    ws.on('error', function (error) {
+        console.log(error);
+    })
 });
 
 console.log('WebSocket server running on ws://localhost:8080');
