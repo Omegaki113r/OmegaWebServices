@@ -10,7 +10,7 @@
  * File Created: Wednesday, 15th January 2025 2:30:53 am
  * Author: Omegaki113r (omegaki113r@gmail.com)
  * -----
- * Last Modified: Sunday, 9th February 2025 10:22:22 pm
+ * Last Modified: Tuesday, 11th February 2025 2:13:31 pm
  * Modified By: Omegaki113r (omegaki113r@gmail.com)
  * -----
  * Copyright 2025 - 2025 0m3g4ki113r, Xtronic
@@ -68,6 +68,9 @@ namespace Omega
         {
             namespace Client
             {
+                esp_websocket_client_handle_t handle;
+                bool s_is_connected = false;
+
                 OmegaStatus Init(const char *in_url) { return Init(in_url, nullptr, nullptr); }
 
                 OmegaStatus Init(const char *in_url, const Authentication &in_auth) { return Init(in_url, in_auth.username, in_auth.password); }
@@ -80,7 +83,7 @@ namespace Omega
                         return eFAILED;
                     }
                     const esp_websocket_client_config_t config{.uri = in_url, .username = in_username, .password = in_password};
-                    const esp_websocket_client_handle_t handle = esp_websocket_client_init(&config);
+                    handle = esp_websocket_client_init(&config);
                     const auto callback = [](void *event_handler_arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
                     {
                         esp_websocket_event_data_t *data = (esp_websocket_event_data_t *)event_data;
@@ -94,11 +97,13 @@ namespace Omega
                         case WEBSOCKET_EVENT_CONNECTED:
                         {
                             LOGD("WEBSOCKET_EVENT_CONNECTED");
+                            s_is_connected = true;
                             break;
                         }
                         case WEBSOCKET_EVENT_DISCONNECTED:
                         {
                             LOGD("WEBSOCKET_EVENT_DISCONNECTED");
+                            s_is_connected = false;
                             break;
                         }
                         case WEBSOCKET_EVENT_DATA:
@@ -149,6 +154,14 @@ namespace Omega
                     }
                     return eSUCCESS;
                 }
+
+                OmegaStatus send(const char *path, const char *data, size_t data_length)
+                {
+                    esp_websocket_client_send_bin(handle, data, data_length, portMAX_DELAY);
+                    return eSUCCESS;
+                }
+
+                bool is_connected() { return s_is_connected; }
 
                 __attribute__((weak)) void on_data(const u8 *data, const size_t data_len) {}
             } // namespace Client
