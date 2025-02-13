@@ -35,20 +35,20 @@ extern "C" void app_main(void)
     ::Omega::WiFiController::connect("Xtronic", "Om3gaki113r");
     ::Omega::WiFiController::wait_for_ip();
 
-    const auto callback = [](const uint8_t *data, const size_t data_len)
-    {
-        OMEGA_LOGD("Length: %d", data_len);
-        OMEGA_LOGD("Data: %s", (const char *)data);
-    };
+    // const auto callback = [](const uint8_t *data, const size_t data_len)
+    // {
+    //     OMEGA_LOGD("Length: %d", data_len);
+    //     OMEGA_LOGD("Data: %s", (const char *)data);
+    // };
     const auto [status, data] = ::Omega::WebServices::Requests::GET(URL, callback);
     if (eSUCCESS != status)
     {
         OMEGA_LOGE("Request failed");
         return;
     }
-    for (const auto &[key, value] : data.header)
-    {
-        OMEGA_LOGD("%s : %s", key.c_str(), value.c_str());
-    }
+    // for (const auto &[key, value] : data.header)
+    // {
+    //     OMEGA_LOGD("%s : %s", key.c_str(), value.c_str());
+    // }
     // OMEGA_HEX_LOGI(data.body, data.body_size);
 }

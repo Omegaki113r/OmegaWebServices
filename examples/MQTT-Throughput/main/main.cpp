@@ -21,14 +21,13 @@
 
 // #define BROKER_URL "mail.aisens.se"
 // #define BROKER_URL_LEN strlen(BROKER_URL)
-
 // #define BROKER_PORT 54100
 // #define BROKER_USERNAME "Ytronic"
 // #define BROKER_PASSWORD "@M0irana"
 
-#define BROKER_URL "broker.hivemq.com"
-#define BROKER_URL_LEN strlen(BROKER_URL)
-#define BROKER_PORT 1883
+// #define BROKER_URL "broker.hivemq.com"
+// #define BROKER_URL_LEN strlen(BROKER_URL)
+// #define BROKER_PORT 1883
 
 const auto on_connected = []()
 {
@@ -44,6 +43,8 @@ const auto on_disconnected = []()
 };
 
 auto client = ::Omega::WebServices::MQTT::Client("192.168.1.4", 1883)
+                  // auto client = ::Omega::WebServices::MQTT::Client(BROKER_URL, BROKER_PORT)
+                  //   .authentication({BROKER_USERNAME, BROKER_PASSWORD})
                   .on_connected(on_connected)
                   .on_data(on_data)
                   .on_disconnected(on_disconnected);
