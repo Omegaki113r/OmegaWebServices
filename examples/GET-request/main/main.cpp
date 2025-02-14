@@ -11,6 +11,7 @@
 #include <nvs_flash.h>
 
 // #include "OmegaWebServices/WebServices.hpp"
+#include "OmegaWebServices/Get.hpp"
 #include "OmegaWebServices/Request.hpp"
 #include "OmegaWiFiController/WiFiController.hpp"
 
@@ -35,11 +36,11 @@ extern "C" void app_main(void)
     ::Omega::WiFiController::connect("Xtronic", "Om3gaki113r");
     ::Omega::WiFiController::wait_for_ip();
 
-    // const auto callback = [](const uint8_t *data, const size_t data_len)
-    // {
-    //     OMEGA_LOGD("Length: %d", data_len);
-    //     OMEGA_LOGD("Data: %s", (const char *)data);
-    // };
+    const auto callback = [](const uint8_t *data, const size_t data_len)
+    {
+        OMEGA_LOGD("Length: %d", data_len);
+        OMEGA_LOGD("Data: %s", (const char *)data);
+    };
     const auto [status, data] = ::Omega::WebServices::Requests::GET(URL, callback);
     if (eSUCCESS != status)
     {
