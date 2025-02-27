@@ -10,7 +10,7 @@
  * File Created: Friday, 14th February 2025 8:30:47 pm
  * Author: Omegaki113r (omegaki113r@gmail.com)
  * -----
- * Last Modified: Friday, 14th February 2025 8:32:16 pm
+ * Last Modified: Thursday, 27th February 2025 3:24:28 pm
  * Modified By: Omegaki113r (omegaki113r@gmail.com)
  * -----
  * Copyright <<projectCreationYear>> - 2025 0m3g4ki113r, Xtronic
@@ -22,7 +22,10 @@
 #pragma once
 
 #include "OmegaUtilityDriver/UtilityDriver.hpp"
+#include "OmegaWebServices/Authentication.hpp"
+#include "OmegaWebServices/Header.hpp"
 #include "OmegaWebServices/RequestBase.hpp"
+#include "OmegaWebServices/Response.hpp"
 
 #include <sdkconfig.h>
 #if CONFIG_OMEGA_WEB_SERVICES_DEBUG
@@ -61,9 +64,52 @@ namespace Omega
 {
     namespace WebServices
     {
-        class GET : public RequestBase
+        namespace Request
         {
-        };
+            template <typename T>
+            class GET : public RequestBase
+            {
+                char m_url[100];
+                Header m_header;
+                Authentication m_authentication;
+                T m_hardware_base;
+
+            public:
+                GET(T hardware_base) {}
+                ~GET() {}
+
+                const char *get_url() const noexcept override { return m_url; }
+                void set_url(const char *url) noexcept override
+                {
+                    if (url)
+                        memcpy(m_url, url, std::strlen(url));
+                }
+                GET &url(const char *url) noexcept override
+                {
+                    if (url)
+                        memcpy(m_url, url, std::strlen(url));
+                    return *this;
+                }
+                const Header &get_header() const noexcept override { return m_header; }
+                void set_header(const Header &in_header) noexcept override { m_header = in_header; }
+                GET &header(const Header &in_header) noexcept override
+                {
+                    m_header = in_header;
+                    return *this;
+                }
+                const Authentication &get_authentication() const noexcept override { return m_authentication; }
+                void set_authentication(const Authentication &in_auth) noexcept override { m_authentication = in_auth; }
+                GET &authentication(const Authentication &in_auth) noexcept override
+                {
+                    m_authentication = in_auth;
+                    return *this;
+                }
+                Response perform() noexcept override
+                {
+                    return m_hardware_base.perform(m_url, m_authentication, m_header);
+                }
+            };
+        } // namespace Request
     } // namespace WebServices
 } // namespace Omega
 

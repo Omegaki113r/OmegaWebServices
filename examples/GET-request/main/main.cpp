@@ -11,6 +11,7 @@
 #include <nvs_flash.h>
 
 // #include "OmegaWebServices/WebServices.hpp"
+#include "OmegaWebServices/ESP32xx.hpp"
 #include "OmegaWebServices/Get.hpp"
 #include "OmegaWebServices/Request.hpp"
 #include "OmegaWiFiController/WiFiController.hpp"
@@ -33,20 +34,33 @@ extern "C" void app_main(void)
     ESP_ERROR_CHECK(ret);
 
     ::Omega::WiFiController::initialize(::Omega::WiFiController::Mode::eSTATION_MODE);
-    ::Omega::WiFiController::connect("Xtronic", "Om3gaki113r");
+    ::Omega::WiFiController::connect("GalaxyS9+71b0", "bqwk9667");
     ::Omega::WiFiController::wait_for_ip();
 
-    const auto callback = [](const uint8_t *data, const size_t data_len)
+    // const auto callback = [](const uint8_t *data, const size_t data_len)
+    // {
+    //     OMEGA_LOGD("Length: %d", data_len);
+    //     OMEGA_LOGD("Data: %s", (const char *)data);
+    // };
+    // const auto [status, data] = ::Omega::WebServices::Requests::GET(URL, callback);
+    // if (eSUCCESS != status)
+    // {
+    //     OMEGA_LOGE("Request failed");
+    //     return;
+    // }
+
+    auto [status, data] = ::Omega::WebServices::Request::GET(::Omega::WebServices::ESP32xx())
+                              .url(URL)
+                              .perform();
+    for (const auto &[key, value] : data.header)
     {
-        OMEGA_LOGD("Length: %d", data_len);
-        OMEGA_LOGD("Data: %s", (const char *)data);
-    };
-    const auto [status, data] = ::Omega::WebServices::Requests::GET(URL, callback);
-    if (eSUCCESS != status)
-    {
-        OMEGA_LOGE("Request failed");
-        return;
+        OMEGA_LOGI("%s: %s", key.c_str(), value.c_str());
     }
+
+    // auto another_request = ::Omega::WebServices::Request::GET(::Omega::WebServices::ESP32xx())
+    //                            .url("https://randomuser.me/api/portraits/thumb/women/27.jpg");
+    // another_request.perform();
+
     // for (const auto &[key, value] : data.header)
     // {
     //     OMEGA_LOGD("%s : %s", key.c_str(), value.c_str());

@@ -1,27 +1,26 @@
 /**
- * @file RequestBase.hpp
+ * @file ESP32xx.hpp
  * @author Omegaki113r
- * @date Friday, 14th February 2025 8:23:32 pm
- * @copyright Copyright <<projectCreationYear>> - 2025 0m3g4ki113r, Xtronic
+ * @date Friday, 21st February 2025 4:27:39 pm
+ * @copyright Copyright 2025 - 2025 0m3g4ki113r, Xtronic
  * */
 /*
  * Project: OmegaWebServices
- * File Name: RequestBase.hpp
- * File Created: Friday, 14th February 2025 8:23:32 pm
+ * File Name: ESP32xx.hpp
+ * File Created: Friday, 21st February 2025 4:27:39 pm
  * Author: Omegaki113r (omegaki113r@gmail.com)
  * -----
- * Last Modified: Saturday, 22nd February 2025 3:00:40 am
+ * Last Modified: Thursday, 27th February 2025 3:23:51 pm
  * Modified By: Omegaki113r (omegaki113r@gmail.com)
  * -----
- * Copyright <<projectCreationYear>> - 2025 0m3g4ki113r, Xtronic
+ * Copyright 2025 - 2025 0m3g4ki113r, Xtronic
  * -----
  * HISTORY:
  * Date      	By	Comments
  * ----------	---	---------------------------------------------------------
  */
-#pragma once
 
-#include <cstring>
+#pragma once
 
 #include "OmegaUtilityDriver/UtilityDriver.hpp"
 #include "OmegaWebServices/Authentication.hpp"
@@ -66,28 +65,11 @@ namespace Omega
 {
     namespace WebServices
     {
-        namespace Request
+        class ESP32xx : public HardwareBase
         {
-            class RequestBase
-            {
-            public:
-                RequestBase() {}
-                ~RequestBase() {}
-                virtual RequestBase &url(const char *url) noexcept = 0;
-                virtual RequestBase &header(const Header &header) noexcept = 0;
-                virtual RequestBase &authentication(const Authentication &auth) noexcept = 0;
-
-                virtual void set_url(const char *url) noexcept = 0;
-                virtual void set_header(const Header &header) noexcept = 0;
-                virtual void set_authentication(const Authentication &auth) noexcept = 0;
-
-                virtual const char *get_url() const noexcept = 0;
-                virtual const Header &get_header() const noexcept = 0;
-                virtual const Authentication &get_authentication() const noexcept = 0;
-
-                virtual Response perform() noexcept = 0;
-            };
-        } // namespace Request
+        public:
+            Response perform(const char *url, const Authentication &auth, const Header &header) noexcept override;
+        };
     } // namespace WebServices
 } // namespace Omega
 
