@@ -3,7 +3,7 @@ set(PROJ_SOURCES            ${PROJ_ROOT_DIR}/src/WebServices.cpp)
 set(PROJ_DEPENDENCIES       OmegaUtilityDriver)
 
 # if(CONFIG_OMEGA_ENABLE_REQUESTS)
-    set( PROJ_SOURCES       ${PROJ_SOURCES} ${PROJ_ROOT_DIR}/src/Request.cpp)
+    set( PROJ_SOURCES       ${PROJ_SOURCES} ${PROJ_ROOT_DIR}/src/Request.cpp ${PROJ_ROOT_DIR}/src/ESP32xx.cpp)
     set( PROJ_DEPENDENCIES  ${PROJ_DEPENDENCIES} esp_http_client)
 # endif()
 
