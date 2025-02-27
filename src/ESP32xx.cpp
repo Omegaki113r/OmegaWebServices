@@ -10,7 +10,7 @@
  * File Created: Friday, 21st February 2025 4:30:23 pm
  * Author: Omegaki113r (omegaki113r@gmail.com)
  * -----
- * Last Modified: Thursday, 27th February 2025 4:00:30 pm
+ * Last Modified: Friday, 28th February 2025 12:23:31 am
  * Modified By: Omegaki113r (omegaki113r@gmail.com)
  * -----
  * Copyright 2025 - 2025 0m3g4ki113r, Xtronic
@@ -20,6 +20,8 @@
  * ----------	---	---------------------------------------------------------
  */
 
+#include <memory>
+
 #include <esp_http_client.h>
 
 #include <freertos/FreeRTOS.h>
@@ -27,6 +29,9 @@
 
 #include "OmegaUtilityDriver/UtilityDriver.hpp"
 #include "OmegaWebServices/ESP32xx.hpp"
+
+#define ARENA_IMPLEMENTATION
+#include "OmegaUtilityDriver/arena.h"
 
 #include <sdkconfig.h>
 #if CONFIG_OMEGA_WEB_SERVICES_DEBUG
@@ -72,8 +77,7 @@ namespace Omega
             struct _Response
             {
                 Header m_header;
-                u8 *m_buffer;
-                size_t m_capacity;
+                Arena m_buffer_arena;
                 size_t m_size;
             };
             const auto http_handler = [](esp_http_client_event_t *evt)
@@ -103,7 +107,9 @@ namespace Omega
                     const char *value = evt->header_value;
                     LOGD("[%s]: %s", key, value);
                     _Response *response = static_cast<_Response *>(evt->user_data);
-                    response->m_header.add_header({key}, {value});
+                    if (nullptr == response)
+                        break;
+                    response->m_header.add_header(key, value);
                     break;
                 }
                 case HTTP_EVENT_ON_DATA:
@@ -111,48 +117,12 @@ namespace Omega
                     LOGD("HTTP_EVENT_ON_DATA");
                     u8 *data = static_cast<u8 *>(evt->data);
                     const size_t data_length = evt->data_len;
-                    HEX_LOGD(data, data_length);
+                    // HEX_LOGD(data, data_length);
                     _Response *response = static_cast<_Response *>(evt->user_data);
                     if (nullptr == response)
                         break;
-                    if (!esp_http_client_is_chunked_response(evt->client))
-                    {
-                        LOGD("Not a Chunked response");
-                        response->m_capacity = data_length;
-                        response->m_buffer = (u8 *)std::calloc(data_length, sizeof(u8));
-                        UNUSED(std::memcpy(response->m_buffer, data, data_length));
-                        response->m_size = data_length;
-                        return ESP_OK;
-                    }
-                    if (0 == response->m_capacity)
-                    {
-                        LOGD("Allocating memory");
-                        response->m_capacity = BUFFER_INCREMENT;
-                        response->m_buffer = (u8 *)std::calloc(response->m_capacity, sizeof(u8));
-                        if (nullptr == response->m_buffer)
-                        {
-                            LOGE("Allocating buffer failed");
-                            response->m_capacity = 0;
-                            response->m_size = 0;
-                            return ESP_FAIL;
-                        }
-                    }
-                    if (response->m_capacity <= response->m_size + data_length)
-                    {
-                        LOGD("Reallocating memory: %d < %d + %d", response->m_capacity, response->m_size, data_length);
-                        response->m_capacity += BUFFER_INCREMENT;
-                        u8 *reallocated = (u8 *)std::realloc(response->m_buffer, response->m_capacity * sizeof(u8));
-                        if (nullptr == reallocated)
-                        {
-                            LOGE("Reallocating buffer failed");
-                            response->m_buffer = nullptr;
-                            response->m_capacity = 0;
-                            response->m_size = 0;
-                            return ESP_FAIL;
-                        }
-                        response->m_buffer = reallocated;
-                    }
-                    UNUSED(std::memcpy(&response->m_buffer[response->m_size], data, data_length));
+                    auto data_buffer = static_cast<u8 *>(arena_alloc(&response->m_buffer_arena, data_length));
+                    UNUSED(std::memcpy(data_buffer, data, data_length));
                     response->m_size += data_length;
                     break;
                 }
@@ -189,7 +159,7 @@ namespace Omega
             }
             for (const auto &[key, value] : header)
             {
-                if (const auto err = esp_http_client_set_header(http_handle, key.c_str(), value.c_str()); ESP_OK != err)
+                if (const auto err = esp_http_client_set_header(http_handle, key, value); ESP_OK != err)
                 {
                     LOGE("esp_http_client_set_header failed with %s", esp_err_to_name(err));
                     return {eFAILED, {}};
@@ -200,10 +170,10 @@ namespace Omega
                 LOGE("esp_http_client_perform failed with %s", esp_err_to_name(err));
                 return {eFAILED, {}};
             }
-            if (nullptr != response.m_buffer)
-                HEX_LOGD(response.m_buffer, response.m_size);
-            free(response.m_buffer);
-            response.m_buffer = nullptr;
+            // if (nullptr != response.m_buffer)
+            HEX_LOGD(response.m_buffer_arena.begin->data, response.m_size);
+            // free(response.m_buffer);
+            // response.m_buffer = nullptr;
             const auto status = esp_http_client_get_status_code(http_handle);
             const auto content_size = esp_http_client_get_content_length(http_handle);
             LOGD("Status: %d | Content size: %lld", status, content_size);
@@ -212,7 +182,14 @@ namespace Omega
                 LOGE("esp_http_client_cleanup failed with: %s", esp_err_to_name(err));
                 return {eFAILED, {}};
             }
-            return {eSUCCESS, {response.m_header}};
+            u8 *internal_buffer = (u8 *)calloc(response.m_size + 1, sizeof(u8));
+            if (nullptr == internal_buffer)
+            {
+                LOGE("allocating buffer failed");
+                return {eFAILED, {}};
+            }
+            UNUSED(std::memcpy(internal_buffer, response.m_buffer_arena.begin, response.m_size));
+            return {eSUCCESS, {response.m_header, {internal_buffer, CHeapDeleter()}}};
         }
     } // namespace WebServices
 } // namespace Omega

@@ -54,7 +54,7 @@ extern "C" void app_main(void)
                               .perform();
     for (const auto &[key, value] : data.header)
     {
-        OMEGA_LOGI("%s: %s", key.c_str(), value.c_str());
+        OMEGA_LOGI("%s: %s", key, value);
     }
 
     // auto another_request = ::Omega::WebServices::Request::GET(::Omega::WebServices::ESP32xx())
