@@ -85,6 +85,7 @@
         "semaphore": "cpp",
         "span": "cpp",
         "sstream": "cpp",
-        "cinttypes": "cpp"
+        "cinttypes": "cpp",
+        "esp_debug_helpers.h": "c"
     }
 }

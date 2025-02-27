@@ -10,7 +10,7 @@
  * File Created: Wednesday, 8th January 2025 12:40:26 am
  * Author: Omegaki113r (omegaki113r@gmail.com)
  * -----
- * Last Modified: Sunday, 9th February 2025 10:25:12 pm
+ * Last Modified: Friday, 28th February 2025 12:23:02 am
  * Modified By: Omegaki113r (omegaki113r@gmail.com)
  * -----
  * Copyright 2025 - 2025 0m3g4ki113r, Xtronic
@@ -20,6 +20,10 @@
  * ----------	---	---------------------------------------------------------
  */
 #pragma once
+
+#ifdef __cplusplus
+#include <memory>
+#endif
 
 #include "OmegaUtilityDriver/UtilityDriver.hpp"
 #include "OmegaWebServices/Header.hpp"
@@ -61,12 +65,30 @@ namespace Omega
 {
     namespace WebServices
     {
+
+#ifdef __cplusplus
+        struct Data
+        {
+            Header header;
+            u8 *body;
+            size_t body_size;
+
+            Data() = default;
+            Data(const Header &in_header, u8 *in_body) : header(in_header), m_body(std::shared_ptr<u8>(in_body, CHeapDeleter())) { body = m_body.get(); }
+            Data(const Header &in_header, const std::shared_ptr<u8> in_body) : header(in_header), m_body(in_body) { body = m_body.get(); }
+            Data(const Header &in_header) : header(in_header) {}
+
+        private:
+            std::shared_ptr<u8> m_body;
+        };
+#else
         struct Data
         {
             Header header;
             u8 *body;
             size_t body_size;
         };
+#endif
 
         struct Response
         {

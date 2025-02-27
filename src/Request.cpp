@@ -10,7 +10,7 @@
  * File Created: Wednesday, 15th January 2025 2:22:51 am
  * Author: Omegaki113r (omegaki113r@gmail.com)
  * -----
- * Last Modified: Tuesday, 11th February 2025 9:51:39 pm
+ * Last Modified: Friday, 28th February 2025 12:17:02 am
  * Modified By: Omegaki113r (omegaki113r@gmail.com)
  * -----
  * Copyright 2025 - 2025 0m3g4ki113r, Xtronic
@@ -185,7 +185,7 @@ namespace Omega
                 esp_http_client_handle_t handle = esp_http_client_init(&http_config);
                 for (const auto &[key, value] : in_header)
                 {
-                    LOGE("esp_http_client_set_header failed for [%s]:%s", key.c_str(), value.c_str());
+                    LOGE("esp_http_client_set_header failed for [%s]:%s", key, value);
                     // if (ESP_OK != esp_http_client_set_header(handle, key, value))
                     // {
                     //     LOGE("esp_http_client_set_header failed for [%s]:%s", key.c_str(), value.c_str());
