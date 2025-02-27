@@ -10,7 +10,7 @@
  * File Created: Friday, 21st February 2025 4:30:23 pm
  * Author: Omegaki113r (omegaki113r@gmail.com)
  * -----
- * Last Modified: Thursday, 27th February 2025 3:54:45 pm
+ * Last Modified: Thursday, 27th February 2025 4:00:30 pm
  * Modified By: Omegaki113r (omegaki113r@gmail.com)
  * -----
  * Copyright 2025 - 2025 0m3g4ki113r, Xtronic
@@ -25,6 +25,7 @@
 #include <freertos/FreeRTOS.h>
 #include <freertos/semphr.h>
 
+#include "OmegaUtilityDriver/UtilityDriver.hpp"
 #include "OmegaWebServices/ESP32xx.hpp"
 
 #include <sdkconfig.h>
@@ -179,7 +180,7 @@ namespace Omega
                 return ESP_OK;
             };
             _Response response{};
-            esp_http_client_config_t config{.url = url, .username = auth.username, .password = auth.password, .disable_auto_redirect = true, .event_handler = http_handler, .user_data = &response};
+            esp_http_client_config_t config{.url = url, .username = auth.username, .password = auth.password, .event_handler = http_handler, .user_data = &response};
             const esp_http_client_handle_t http_handle = esp_http_client_init(&config);
             if (nullptr == http_handle)
             {
