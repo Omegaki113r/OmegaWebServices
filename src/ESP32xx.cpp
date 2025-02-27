@@ -10,7 +10,7 @@
  * File Created: Friday, 21st February 2025 4:30:23 pm
  * Author: Omegaki113r (omegaki113r@gmail.com)
  * -----
- * Last Modified: Friday, 28th February 2025 12:23:31 am
+ * Last Modified: Friday, 28th February 2025 1:07:41 am
  * Modified By: Omegaki113r (omegaki113r@gmail.com)
  * -----
  * Copyright 2025 - 2025 0m3g4ki113r, Xtronic
@@ -117,7 +117,7 @@ namespace Omega
                     LOGD("HTTP_EVENT_ON_DATA");
                     u8 *data = static_cast<u8 *>(evt->data);
                     const size_t data_length = evt->data_len;
-                    // HEX_LOGD(data, data_length);
+                    HEX_LOGD(data, data_length);
                     _Response *response = static_cast<_Response *>(evt->user_data);
                     if (nullptr == response)
                         break;
@@ -170,10 +170,6 @@ namespace Omega
                 LOGE("esp_http_client_perform failed with %s", esp_err_to_name(err));
                 return {eFAILED, {}};
             }
-            // if (nullptr != response.m_buffer)
-            HEX_LOGD(response.m_buffer_arena.begin->data, response.m_size);
-            // free(response.m_buffer);
-            // response.m_buffer = nullptr;
             const auto status = esp_http_client_get_status_code(http_handle);
             const auto content_size = esp_http_client_get_content_length(http_handle);
             LOGD("Status: %d | Content size: %lld", status, content_size);
@@ -189,7 +185,7 @@ namespace Omega
                 return {eFAILED, {}};
             }
             UNUSED(std::memcpy(internal_buffer, response.m_buffer_arena.begin, response.m_size));
-            return {eSUCCESS, {response.m_header, {internal_buffer, CHeapDeleter()}}};
+            return {eSUCCESS, {static_cast<u16>(status), response.m_header, {internal_buffer, CHeapDeleter()}}};
         }
     } // namespace WebServices
 } // namespace Omega

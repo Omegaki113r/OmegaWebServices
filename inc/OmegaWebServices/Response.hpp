@@ -10,7 +10,7 @@
  * File Created: Wednesday, 8th January 2025 12:40:26 am
  * Author: Omegaki113r (omegaki113r@gmail.com)
  * -----
- * Last Modified: Friday, 28th February 2025 12:23:02 am
+ * Last Modified: Friday, 28th February 2025 1:07:03 am
  * Modified By: Omegaki113r (omegaki113r@gmail.com)
  * -----
  * Copyright 2025 - 2025 0m3g4ki113r, Xtronic
@@ -69,14 +69,15 @@ namespace Omega
 #ifdef __cplusplus
         struct Data
         {
+            u16 status_code;
             Header header;
             u8 *body;
             size_t body_size;
 
             Data() = default;
-            Data(const Header &in_header, u8 *in_body) : header(in_header), m_body(std::shared_ptr<u8>(in_body, CHeapDeleter())) { body = m_body.get(); }
-            Data(const Header &in_header, const std::shared_ptr<u8> in_body) : header(in_header), m_body(in_body) { body = m_body.get(); }
-            Data(const Header &in_header) : header(in_header) {}
+            Data(u16 status, const Header &in_header, u8 *in_body) : status_code(status), header(in_header), m_body(std::shared_ptr<u8>(in_body, CHeapDeleter())) { body = m_body.get(); }
+            Data(u16 status, const Header &in_header, const std::shared_ptr<u8> in_body) : status_code(status), header(in_header), m_body(in_body) { body = m_body.get(); }
+            Data(u16 status, const Header &in_header) : status_code(status), header(in_header) {}
 
         private:
             std::shared_ptr<u8> m_body;

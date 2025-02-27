@@ -10,7 +10,7 @@
  * File Created: Wednesday, 8th January 2025 12:36:31 am
  * Author: Omegaki113r (omegaki113r@gmail.com)
  * -----
- * Last Modified: Friday, 28th February 2025 12:40:17 am
+ * Last Modified: Friday, 28th February 2025 1:04:35 am
  * Modified By: Omegaki113r (omegaki113r@gmail.com)
  * -----
  * Copyright 2025 - 2025 0m3g4ki113r, Xtronic
@@ -24,8 +24,6 @@
 #include <memory>
 #include <string>
 #include <unordered_map>
-
-#include "esp_debug_helpers.h"
 
 #include "OmegaUtilityDriver/UtilityDriver.hpp"
 #include "OmegaUtilityDriver/arena.h"
