@@ -10,7 +10,7 @@
  * File Created: Friday, 14th February 2025 8:30:47 pm
  * Author: Omegaki113r (omegaki113r@gmail.com)
  * -----
- * Last Modified: Saturday, 1st March 2025 2:39:11 am
+ * Last Modified: Saturday, 1st March 2025 5:13:23 am
  * Modified By: Omegaki113r (omegaki113r@gmail.com)
  * -----
  * Copyright <<projectCreationYear>> - 2025 0m3g4ki113r, Xtronic
@@ -70,6 +70,9 @@ namespace Omega
             class GET : public RequestBase
             {
                 char m_url[100];
+                char m_host[100];
+                u16 m_port;
+                char m_path[100];
                 Header m_header;
                 Authentication m_authentication;
                 T m_hardware_base;
@@ -90,6 +93,41 @@ namespace Omega
                         memcpy(m_url, url, std::strlen(url));
                     return *this;
                 }
+
+                const char *get_host() const noexcept override { return m_host; }
+                void set_host(const char *host) noexcept override
+                {
+                    if (host)
+                        memcpy(m_host, host, std::strlen(host));
+                }
+                GET &host(const char *host) noexcept override
+                {
+                    if (host)
+                        memcpy(m_host, host, std::strlen(host));
+                    return *this;
+                }
+
+                u16 get_port() const noexcept override { return m_port; }
+                void set_port(u16 port) noexcept override { m_port = port; }
+                GET &port(u16 port) noexcept override
+                {
+                    m_port = port;
+                    return *this;
+                }
+
+                const char *get_path() const noexcept override { return m_path; }
+                void set_path(const char *path) noexcept override
+                {
+                    if (path)
+                        memcpy(m_path, path, std::strlen(path));
+                }
+                GET &path(const char *path) noexcept override
+                {
+                    if (path)
+                        memcpy(m_path, path, std::strlen(path));
+                    return *this;
+                }
+
                 const Header &get_header() const noexcept override { return m_header; }
                 void set_header(const Header &in_header) noexcept override { m_header = in_header; }
                 GET &header(const Header &in_header) noexcept override
@@ -104,8 +142,28 @@ namespace Omega
                     m_authentication = in_auth;
                     return *this;
                 }
-                Response perform() noexcept override { return m_hardware_base.perform(m_url, m_authentication, m_header); }
-                Response perform_chunked(std::function<void(const u8 *data, size_t data_length)> chunked_callback) noexcept override { return m_hardware_base.perform_chunked(m_url, m_authentication, m_header, chunked_callback); }
+                Response perform() noexcept override
+                {
+                    if (0 < std::strlen(m_url))
+                    {
+                        return m_hardware_base.perform(m_url, m_authentication, m_header);
+                    }
+                    else
+                    {
+                        return m_hardware_base.perform(m_host, m_port, m_path, m_authentication, m_header);
+                    }
+                }
+                Response perform_chunked(std::function<void(const u8 *data, size_t data_length)> chunked_callback) noexcept override
+                {
+                    if (0 < std::strlen(m_url))
+                    {
+                        return m_hardware_base.perform_chunked(m_url, m_authentication, m_header, chunked_callback);
+                    }
+                    else
+                    {
+                        return m_hardware_base.perform_chunked(m_host, m_port, m_path, m_authentication, m_header, chunked_callback);
+                    }
+                }
             };
         } // namespace Request
     } // namespace WebServices

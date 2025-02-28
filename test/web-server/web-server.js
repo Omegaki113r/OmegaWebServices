@@ -61,7 +61,7 @@ const server = http.createServer((req, res) => {
 });
 
 // Define the port and hostname
-// const hostname = '192.168.1.4'; // localhost
+const hostname = '192.168.1.4'; // localhost
 const port = 3000;
 
 // Start the server
@@ -71,5 +71,5 @@ const port = 3000;
 
 
 server.listen(port, () => {
-    // console.log(`Server running at http://${hostname}:${port}/`);
+    console.log(`Server running at http://${hostname}:${port}/`);
 });

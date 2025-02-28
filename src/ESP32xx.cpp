@@ -10,7 +10,7 @@
  * File Created: Friday, 21st February 2025 4:30:23 pm
  * Author: Omegaki113r (omegaki113r@gmail.com)
  * -----
- * Last Modified: Saturday, 1st March 2025 2:43:10 am
+ * Last Modified: Saturday, 1st March 2025 5:14:22 am
  * Modified By: Omegaki113r (omegaki113r@gmail.com)
  * -----
  * Copyright 2025 - 2025 0m3g4ki113r, Xtronic
@@ -79,6 +79,18 @@ namespace Omega
                 return eFAILED;
             }
             return eSUCCESS;
+        }
+
+        Response ESP32xx::perform(const char *url, const Authentication &auth, const Header &header) noexcept
+        {
+            const auto empty_chunk_callback = [](const u8 *data, size_t data_length) {};
+            return perform_chunked(url, auth, header, empty_chunk_callback);
+        }
+
+        Response ESP32xx::perform(const char *host, u16 port, const char *path, const Authentication &auth, const Header &header) noexcept
+        {
+            const auto empty_chunk_callback = [](const u8 *data, size_t data_length) {};
+            return perform_chunked(host, port, path, auth, header, empty_chunk_callback);
         }
 
         Response ESP32xx::perform_chunked(const char *url, const Authentication &auth, const Header &header, std::function<void(const u8 *data, size_t data_length)> chunked_callback) noexcept
@@ -203,7 +215,7 @@ namespace Omega
             return {eSUCCESS, {static_cast<u16>(status), response.m_header, {internal_buffer, CHeapDeleter()}, response.m_sb.count}};
         }
 
-        Response ESP32xx::perform(const char *url, const Authentication &auth, const Header &header) noexcept
+        Response ESP32xx::perform_chunked(const char *host, u16 port, const char *path, const Authentication &auth, const Header &header, std::function<void(const u8 *data, size_t data_length)> chunked_callback) noexcept
         {
             typedef struct
             {
@@ -216,6 +228,7 @@ namespace Omega
                 Header m_header;
                 String_Builder m_sb;
                 Arena m_buffer_arena;
+                std::function<void(const u8 *data, size_t data_length)> m_callback;
             };
             const auto http_handler = [](esp_http_client_event_t *evt)
             {
@@ -257,6 +270,7 @@ namespace Omega
                     if (nullptr == response)
                         break;
                     arena_sb_append_buf(&response->m_buffer_arena, &response->m_sb, data, data_length);
+                    response->m_callback(data, data_length);
                     break;
                 }
                 case HTTP_EVENT_ON_FINISH:
@@ -282,12 +296,14 @@ namespace Omega
                 }
                 return ESP_OK;
             };
-            _Response response{};
-            const esp_http_client_config_t config{.url = url, .username = auth.username, .password = auth.password, .event_handler = http_handler, .user_data = &response};
+            _Response response{.m_callback = chunked_callback};
+            // char host_buffer[100]{0};
+            // UNUSED(sprintf(host_buffer, "%s:%d", host, port));
+            const esp_http_client_config_t config{.host = host, .port = port, .username = auth.username, .password = auth.password, .path = path, .event_handler = http_handler, .user_data = &response};
             const esp_http_client_handle_t http_handle = esp_http_client_init(&config);
             if (nullptr == http_handle)
             {
-                LOGE("esp_http_client_init failed");
+                LOGE("esp_http_client_init failed for %s/%s", config.host, config.path);
                 return {eFAILED, {}};
             }
             for (const auto &[key, value] : header)
@@ -322,5 +338,6 @@ namespace Omega
             arena_free(&response.m_buffer_arena);
             return {eSUCCESS, {static_cast<u16>(status), response.m_header, {internal_buffer, CHeapDeleter()}, response.m_sb.count}};
         }
+
     } // namespace WebServices
 } // namespace Omega

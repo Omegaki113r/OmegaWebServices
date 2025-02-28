@@ -41,6 +41,19 @@ extern "C" void app_main(void)
     ::Omega::WiFiController::connect("GalaxyS9+71b0", "bqwk9667");
     ::Omega::WiFiController::wait_for_ip();
 
+    auto [status, data] = ::Omega::WebServices::Request::GET(::Omega::WebServices::ESP32xx())
+                              .url("http://192.168.43.159:3000")
+                              //   .host("192.168.43.159")
+                              //   .port(3000)
+                              //   .path("/uploads")
+                              .perform();
+    for (const auto &[key, value] : data.header)
+    {
+        OMEGA_LOGI("%s: %s", key, value);
+    }
+    OMEGA_HEX_LOGI(data.body, data.body_size);
+    return;
+
     {
         for (size_t i = 0; i < 500; ++i)
         {

@@ -10,7 +10,7 @@
  * File Created: Friday, 14th February 2025 8:23:32 pm
  * Author: Omegaki113r (omegaki113r@gmail.com)
  * -----
- * Last Modified: Saturday, 1st March 2025 2:38:47 am
+ * Last Modified: Saturday, 1st March 2025 5:14:53 am
  * Modified By: Omegaki113r (omegaki113r@gmail.com)
  * -----
  * Copyright <<projectCreationYear>> - 2025 0m3g4ki113r, Xtronic
@@ -75,14 +75,23 @@ namespace Omega
                 RequestBase() {}
                 ~RequestBase() {}
                 virtual RequestBase &url(const char *url) noexcept = 0;
+                virtual RequestBase &host(const char *host) noexcept = 0;
+                virtual RequestBase &port(u16 port) noexcept = 0;
+                virtual RequestBase &path(const char *path) noexcept = 0;
                 virtual RequestBase &header(const Header &header) noexcept = 0;
                 virtual RequestBase &authentication(const Authentication &auth) noexcept = 0;
 
                 virtual void set_url(const char *url) noexcept = 0;
+                virtual void set_host(const char *host) noexcept = 0;
+                virtual void set_port(u16 port) noexcept = 0;
+                virtual void set_path(const char *path) noexcept = 0;
                 virtual void set_header(const Header &header) noexcept = 0;
                 virtual void set_authentication(const Authentication &auth) noexcept = 0;
 
                 virtual const char *get_url() const noexcept = 0;
+                virtual const char *get_host() const noexcept = 0;
+                virtual u16 get_port() const noexcept = 0;
+                virtual const char *get_path() const noexcept = 0;
                 virtual const Header &get_header() const noexcept = 0;
                 virtual const Authentication &get_authentication() const noexcept = 0;
 
