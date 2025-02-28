@@ -10,7 +10,7 @@
  * File Created: Friday, 21st February 2025 4:30:23 pm
  * Author: Omegaki113r (omegaki113r@gmail.com)
  * -----
- * Last Modified: Saturday, 1st March 2025 1:30:39 am
+ * Last Modified: Saturday, 1st March 2025 2:02:15 am
  * Modified By: Omegaki113r (omegaki113r@gmail.com)
  * -----
  * Copyright 2025 - 2025 0m3g4ki113r, Xtronic
@@ -83,11 +83,17 @@ namespace Omega
 
         Response ESP32xx::perform(const char *url, const Authentication &auth, const Header &header) noexcept
         {
+            typedef struct
+            {
+                char *items;
+                size_t count;
+                size_t capacity;
+            } String_Builder;
             struct _Response
             {
                 Header m_header;
+                String_Builder m_sb;
                 Arena m_buffer_arena;
-                size_t m_size;
             };
             const auto http_handler = [](esp_http_client_event_t *evt)
             {
@@ -125,14 +131,10 @@ namespace Omega
                     LOGD("HTTP_EVENT_ON_DATA");
                     u8 *data = static_cast<u8 *>(evt->data);
                     const size_t data_length = evt->data_len;
-                    HEX_LOGD(data, data_length);
                     _Response *response = static_cast<_Response *>(evt->user_data);
                     if (nullptr == response)
                         break;
-                    auto data_buffer = static_cast<u8 *>(arena_alloc(&response->m_buffer_arena, data_length + 1));
-                    UNUSED(std::memcpy(data_buffer, data, data_length));
-                    data_buffer[data_length] = '\0';
-                    response->m_size += data_length;
+                    arena_sb_append_buf(&response->m_buffer_arena, &response->m_sb, data, data_length);
                     break;
                 }
                 case HTTP_EVENT_ON_FINISH:
@@ -188,15 +190,15 @@ namespace Omega
                 LOGE("esp_http_client_cleanup failed with: %s", esp_err_to_name(err));
                 return {eFAILED, {}};
             }
-            u8 *internal_buffer = (u8 *)calloc(response.m_size + 1, sizeof(u8));
+            u8 *internal_buffer = (u8 *)calloc(response.m_sb.count + 1, sizeof(u8));
             if (nullptr == internal_buffer)
             {
                 LOGE("allocating buffer failed");
                 return {eFAILED, {}};
             }
-            UNUSED(std::memcpy(internal_buffer, response.m_buffer_arena.begin, response.m_size));
+            UNUSED(std::memcpy(internal_buffer, response.m_sb.items, response.m_sb.count));
             arena_free(&response.m_buffer_arena);
-            return {eSUCCESS, {static_cast<u16>(status), response.m_header, {internal_buffer, CHeapDeleter()}, response.m_size}};
+            return {eSUCCESS, {static_cast<u16>(status), response.m_header, {internal_buffer, CHeapDeleter()}, response.m_sb.count}};
         }
     } // namespace WebServices
 } // namespace Omega

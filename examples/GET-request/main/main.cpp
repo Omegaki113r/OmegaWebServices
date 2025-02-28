@@ -54,13 +54,12 @@ extern "C" void app_main(void)
     // }
 
     {
-        for (size_t i = 0; i < 50; ++i)
+        for (size_t i = 0; i < 10; ++i)
         {
             const auto start = heap_caps_get_free_size(MALLOC_CAP_DEFAULT);
             {
-                auto get_request = ::Omega::WebServices::Request::GET(::Omega::WebServices::ESP32xx())
-                                       .url(URL);
-                auto [status, data] = get_request
+                auto [status, data] = ::Omega::WebServices::Request::GET(::Omega::WebServices::ESP32xx())
+                                          .url(URL)
                                           .perform();
                 for (const auto &[key, value] : data.header)
                 {
@@ -72,29 +71,6 @@ extern "C" void app_main(void)
             OMEGA_LOGI("%d", start - heap_caps_get_free_size(MALLOC_CAP_DEFAULT));
         }
     }
-    // OMEGA_LOGI("%d", heap_caps_get_free_size(MALLOC_CAP_DEFAULT));
-    // auto another_request = ::Omega::WebServices::Request::GET(::Omega::WebServices::ESP32xx())
-    //                            .url("https://randomuser.me/api/portraits/thumb/women/27.jpg");
-    // another_request.perform();
-
-    // for (const auto &[key, value] : data.header)
-    // {
-    //     OMEGA_LOGD("%s : %s", key.c_str(), value.c_str());
-    // }
-    // OMEGA_HEX_LOGI(data.body, data.body_size);
-
-    // for (size_t i = 0; i < 50; ++i)
-    // {
-    //     const auto start = heap_caps_get_free_size(MALLOC_CAP_DEFAULT);
-    //     {
-    //         const esp_http_client_config_t config{URL};
-    //         const esp_http_client_handle_t http_handle = esp_http_client_init(&config);
-    //         esp_http_client_perform(http_handle);
-    //         esp_http_client_cleanup(http_handle);
-    //     }
-    //     delay({0, 0, 2});
-    //     OMEGA_LOGI("%d", start - heap_caps_get_free_size(MALLOC_CAP_DEFAULT));
-    // }
     for (;;)
     {
         OMEGA_LOGE("%d", heap_caps_get_free_size(MALLOC_CAP_DEFAULT));
