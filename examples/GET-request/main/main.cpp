@@ -41,33 +41,35 @@ extern "C" void app_main(void)
     ::Omega::WiFiController::connect("GalaxyS9+71b0", "bqwk9667");
     ::Omega::WiFiController::wait_for_ip();
 
-    // const auto callback = [](const uint8_t *data, const size_t data_len)
-    // {
-    //     OMEGA_LOGD("Length: %d", data_len);
-    //     OMEGA_LOGD("Data: %s", (const char *)data);
-    // };
-    // const auto [status, data] = ::Omega::WebServices::Requests::GET(URL, callback);
-    // if (eSUCCESS != status)
-    // {
-    //     OMEGA_LOGE("Request failed");
-    //     return;
-    // }
-
     {
-        for (size_t i = 0; i < 10; ++i)
+        for (size_t i = 0; i < 500; ++i)
         {
             const auto start = heap_caps_get_free_size(MALLOC_CAP_DEFAULT);
             {
                 auto [status, data] = ::Omega::WebServices::Request::GET(::Omega::WebServices::ESP32xx())
                                           .url(URL)
                                           .perform();
-                for (const auto &[key, value] : data.header)
-                {
-                    OMEGA_LOGI("%s: %s", key, value);
-                }
-                OMEGA_HEX_LOGI(data.body, data.body_size);
+                // for (const auto &[key, value] : data.header)
+                // {
+                //     OMEGA_LOGI("%s: %s", key, value);
+                // }
+                // OMEGA_HEX_LOGI(data.body, data.body_size);
             }
-            delay({0, 0, 1});
+            {
+                const auto chunked_callback = [](const u8 *data, size_t data_length)
+                {
+                    // OMEGA_LOGW("Chunk received with length: %d", data_length);
+                    // OMEGA_HEX_LOGI((void *)data, data_length);
+                };
+                auto [status, data] = ::Omega::WebServices::Request::GET(::Omega::WebServices::ESP32xx())
+                                          .url(URL)
+                                          .perform_chunked(chunked_callback);
+                // for (const auto &[key, value] : data.header)
+                // {
+                //     OMEGA_LOGI("%s: %s", key, value);
+                // }
+                // OMEGA_HEX_LOGI(data.body, data.body_size);
+            }
             OMEGA_LOGI("%d", start - heap_caps_get_free_size(MALLOC_CAP_DEFAULT));
         }
     }

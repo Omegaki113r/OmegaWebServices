@@ -10,7 +10,7 @@
  * File Created: Friday, 21st February 2025 4:27:39 pm
  * Author: Omegaki113r (omegaki113r@gmail.com)
  * -----
- * Last Modified: Saturday, 1st March 2025 12:00:26 am
+ * Last Modified: Saturday, 1st March 2025 2:40:49 am
  * Modified By: Omegaki113r (omegaki113r@gmail.com)
  * -----
  * Copyright 2025 - 2025 0m3g4ki113r, Xtronic
@@ -71,6 +71,7 @@ namespace Omega
 
         public:
             Response perform(const char *url, const Authentication &auth, const Header &header) noexcept override;
+            Response perform_chunked(const char *url, const Authentication &auth, const Header &header, std::function<void(const u8 *data, size_t data_length)> chunked_callback) noexcept override;
         };
     } // namespace WebServices
 } // namespace Omega
