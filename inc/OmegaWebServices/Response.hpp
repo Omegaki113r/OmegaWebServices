@@ -10,7 +10,7 @@
  * File Created: Wednesday, 8th January 2025 12:40:26 am
  * Author: Omegaki113r (omegaki113r@gmail.com)
  * -----
- * Last Modified: Friday, 28th February 2025 1:07:03 am
+ * Last Modified: Saturday, 1st March 2025 1:21:52 am
  * Modified By: Omegaki113r (omegaki113r@gmail.com)
  * -----
  * Copyright 2025 - 2025 0m3g4ki113r, Xtronic
@@ -71,16 +71,32 @@ namespace Omega
         {
             u16 status_code;
             Header header;
-            u8 *body;
             size_t body_size;
+            u8 *body;
 
             Data() = default;
-            Data(u16 status, const Header &in_header, u8 *in_body) : status_code(status), header(in_header), m_body(std::shared_ptr<u8>(in_body, CHeapDeleter())) { body = m_body.get(); }
-            Data(u16 status, const Header &in_header, const std::shared_ptr<u8> in_body) : status_code(status), header(in_header), m_body(in_body) { body = m_body.get(); }
+            Data(u16 status, const Header &in_header, u8 *in_body) : status_code(status), header(in_header), m_body(in_body, CHeapDeleter())
+            {
+                body = m_body.get();
+            }
+            Data(u16 status, const Header &in_header, u8 *in_body, size_t in_body_size) : status_code(status), header(in_header), body_size(in_body_size), m_body(in_body, CHeapDeleter())
+            {
+                body = m_body.get();
+            }
+            Data(u16 status, const Header &in_header, std::unique_ptr<u8, CHeapDeleter> in_body) : status_code(status), header(in_header)
+            {
+                m_body = std::move(in_body);
+                body = m_body.get();
+            }
+            Data(u16 status, const Header &in_header, std::unique_ptr<u8, CHeapDeleter> in_body, size_t in_body_size) : status_code(status), header(in_header), body_size(in_body_size)
+            {
+                m_body = std::move(in_body);
+                body = m_body.get();
+            }
             Data(u16 status, const Header &in_header) : status_code(status), header(in_header) {}
 
         private:
-            std::shared_ptr<u8> m_body;
+            std::unique_ptr<u8, CHeapDeleter> m_body;
         };
 #else
         struct Data

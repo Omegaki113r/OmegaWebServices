@@ -10,7 +10,7 @@
  * File Created: Wednesday, 8th January 2025 12:36:31 am
  * Author: Omegaki113r (omegaki113r@gmail.com)
  * -----
- * Last Modified: Friday, 28th February 2025 1:04:35 am
+ * Last Modified: Friday, 28th February 2025 9:59:17 pm
  * Modified By: Omegaki113r (omegaki113r@gmail.com)
  * -----
  * Copyright 2025 - 2025 0m3g4ki113r, Xtronic
@@ -104,7 +104,6 @@ namespace Omega
 
             ~Header()
             {
-                header.clear();
                 arena_free(&arena);
             }
         };

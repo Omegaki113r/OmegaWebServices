@@ -10,7 +10,7 @@
  * File Created: Friday, 21st February 2025 4:30:23 pm
  * Author: Omegaki113r (omegaki113r@gmail.com)
  * -----
- * Last Modified: Friday, 28th February 2025 1:07:41 am
+ * Last Modified: Saturday, 1st March 2025 1:30:39 am
  * Modified By: Omegaki113r (omegaki113r@gmail.com)
  * -----
  * Copyright 2025 - 2025 0m3g4ki113r, Xtronic
@@ -70,7 +70,16 @@ namespace Omega
 {
     namespace WebServices
     {
-        constexpr size_t BUFFER_INCREMENT = 1000;
+
+        OmegaStatus ESP32xx::cleanup(esp_http_client_handle_t handle) noexcept
+        {
+            if (const auto err = esp_http_client_cleanup(handle); ESP_OK != err)
+            {
+                LOGE("esp_http_client_cleanup failed with: %s", esp_err_to_name(err));
+                return eFAILED;
+            }
+            return eSUCCESS;
+        }
 
         Response ESP32xx::perform(const char *url, const Authentication &auth, const Header &header) noexcept
         {
@@ -105,7 +114,6 @@ namespace Omega
                     LOGD("HTTP_EVENT_ON_HEADER");
                     const char *key = evt->header_key;
                     const char *value = evt->header_value;
-                    LOGD("[%s]: %s", key, value);
                     _Response *response = static_cast<_Response *>(evt->user_data);
                     if (nullptr == response)
                         break;
@@ -121,8 +129,9 @@ namespace Omega
                     _Response *response = static_cast<_Response *>(evt->user_data);
                     if (nullptr == response)
                         break;
-                    auto data_buffer = static_cast<u8 *>(arena_alloc(&response->m_buffer_arena, data_length));
+                    auto data_buffer = static_cast<u8 *>(arena_alloc(&response->m_buffer_arena, data_length + 1));
                     UNUSED(std::memcpy(data_buffer, data, data_length));
+                    data_buffer[data_length] = '\0';
                     response->m_size += data_length;
                     break;
                 }
@@ -150,7 +159,7 @@ namespace Omega
                 return ESP_OK;
             };
             _Response response{};
-            esp_http_client_config_t config{.url = url, .username = auth.username, .password = auth.password, .event_handler = http_handler, .user_data = &response};
+            const esp_http_client_config_t config{.url = url, .username = auth.username, .password = auth.password, .event_handler = http_handler, .user_data = &response};
             const esp_http_client_handle_t http_handle = esp_http_client_init(&config);
             if (nullptr == http_handle)
             {
@@ -168,6 +177,7 @@ namespace Omega
             if (const auto err = esp_http_client_perform(http_handle); ESP_OK != err)
             {
                 LOGE("esp_http_client_perform failed with %s", esp_err_to_name(err));
+                cleanup(http_handle);
                 return {eFAILED, {}};
             }
             const auto status = esp_http_client_get_status_code(http_handle);
@@ -185,7 +195,8 @@ namespace Omega
                 return {eFAILED, {}};
             }
             UNUSED(std::memcpy(internal_buffer, response.m_buffer_arena.begin, response.m_size));
-            return {eSUCCESS, {static_cast<u16>(status), response.m_header, {internal_buffer, CHeapDeleter()}}};
+            arena_free(&response.m_buffer_arena);
+            return {eSUCCESS, {static_cast<u16>(status), response.m_header, {internal_buffer, CHeapDeleter()}, response.m_size}};
         }
     } // namespace WebServices
 } // namespace Omega

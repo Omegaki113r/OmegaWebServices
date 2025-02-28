@@ -10,7 +10,7 @@
  * File Created: Friday, 21st February 2025 4:27:39 pm
  * Author: Omegaki113r (omegaki113r@gmail.com)
  * -----
- * Last Modified: Thursday, 27th February 2025 3:23:51 pm
+ * Last Modified: Saturday, 1st March 2025 12:00:26 am
  * Modified By: Omegaki113r (omegaki113r@gmail.com)
  * -----
  * Copyright 2025 - 2025 0m3g4ki113r, Xtronic
@@ -67,6 +67,8 @@ namespace Omega
     {
         class ESP32xx : public HardwareBase
         {
+            OmegaStatus cleanup(esp_http_client_handle_t handle) noexcept;
+
         public:
             Response perform(const char *url, const Authentication &auth, const Header &header) noexcept override;
         };
