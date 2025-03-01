@@ -46,6 +46,7 @@ const server = http.createServer((req, res) => {
                 // If the file is uploaded successfully
                 res.statusCode = 200;
                 res.setHeader('Content-Type', 'application/json');
+                // res.setHeader('Content-Type', 'text/plain');
                 res.end(JSON.stringify({
                     message: 'File uploaded successfully!',
                     file: req.file, // File information
@@ -55,8 +56,10 @@ const server = http.createServer((req, res) => {
     } else {
         // For any non-POST request, return a simple message
         res.statusCode = 200;
-        res.setHeader('Content-Type', 'text/html');
-        res.end('<h1>Welcome to the file upload server!</h1>');
+        // res.setHeader('Content-Type', 'text/html');
+        res.setHeader('Content-Type', 'text/plain');
+        const data = fs.readFileSync('uploads/data.txt', 'utf8');
+        res.end(data);
     }
 });
 

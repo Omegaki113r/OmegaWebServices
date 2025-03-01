@@ -10,7 +10,7 @@
  * File Created: Friday, 21st February 2025 4:30:23 pm
  * Author: Omegaki113r (omegaki113r@gmail.com)
  * -----
- * Last Modified: Saturday, 1st March 2025 5:14:22 am
+ * Last Modified: Sunday, 2nd March 2025 12:15:56 am
  * Modified By: Omegaki113r (omegaki113r@gmail.com)
  * -----
  * Copyright 2025 - 2025 0m3g4ki113r, Xtronic
@@ -147,7 +147,7 @@ namespace Omega
                     _Response *response = static_cast<_Response *>(evt->user_data);
                     if (nullptr == response)
                         break;
-                    arena_sb_append_buf(&response->m_buffer_arena, &response->m_sb, data, data_length);
+                    // arena_sb_append_buf(&response->m_buffer_arena, &response->m_sb, data, data_length);
                     response->m_callback(data, data_length);
                     break;
                 }
@@ -269,7 +269,7 @@ namespace Omega
                     _Response *response = static_cast<_Response *>(evt->user_data);
                     if (nullptr == response)
                         break;
-                    arena_sb_append_buf(&response->m_buffer_arena, &response->m_sb, data, data_length);
+                    // arena_sb_append_buf(&response->m_buffer_arena, &response->m_sb, data, data_length);
                     response->m_callback(data, data_length);
                     break;
                 }
