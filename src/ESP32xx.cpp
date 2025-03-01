@@ -10,7 +10,7 @@
  * File Created: Friday, 21st February 2025 4:30:23 pm
  * Author: Omegaki113r (omegaki113r@gmail.com)
  * -----
- * Last Modified: Sunday, 2nd March 2025 12:15:56 am
+ * Last Modified: Sunday, 2nd March 2025 3:35:37 am
  * Modified By: Omegaki113r (omegaki113r@gmail.com)
  * -----
  * Copyright 2025 - 2025 0m3g4ki113r, Xtronic
@@ -83,29 +83,26 @@ namespace Omega
 
         Response ESP32xx::perform(const char *url, const Authentication &auth, const Header &header) noexcept
         {
-            const auto empty_chunk_callback = [](const u8 *data, size_t data_length) {};
-            return perform_chunked(url, auth, header, empty_chunk_callback);
+            return perform_chunked(url, auth, header, nullptr);
         }
 
         Response ESP32xx::perform(const char *host, u16 port, const char *path, const Authentication &auth, const Header &header) noexcept
         {
-            const auto empty_chunk_callback = [](const u8 *data, size_t data_length) {};
-            return perform_chunked(host, port, path, auth, header, empty_chunk_callback);
+            return perform_chunked(host, port, path, auth, header, nullptr);
         }
 
         Response ESP32xx::perform_chunked(const char *url, const Authentication &auth, const Header &header, std::function<void(const u8 *data, size_t data_length)> chunked_callback) noexcept
         {
             typedef struct
             {
-                char *items;
+                u8 *items;
                 size_t count;
                 size_t capacity;
-            } String_Builder;
+            } String;
             struct _Response
             {
                 Header m_header;
-                String_Builder m_sb;
-                Arena m_buffer_arena;
+                String m_string;
                 std::function<void(const u8 *data, size_t data_length)> m_callback;
             };
             const auto http_handler = [](esp_http_client_event_t *evt)
@@ -147,8 +144,40 @@ namespace Omega
                     _Response *response = static_cast<_Response *>(evt->user_data);
                     if (nullptr == response)
                         break;
+                    if (response->m_callback)
+                    {
+                        response->m_callback(data, data_length);
+                        break;
+                    }
+                    if (0 == response->m_string.capacity)
+                    {
+                        response->m_string.count = 0;
+                        response->m_string.capacity = 1000;
+                        response->m_string.items = (u8 *)malloc(sizeof(u8) * response->m_string.capacity);
+                        if (nullptr == response->m_string.items)
+                        {
+                            LOGE("Allocation failed");
+                            return ESP_ERR_NO_MEM;
+                        }
+                    }
+                    if (response->m_string.capacity <= data_length + response->m_string.count)
+                    {
+                        u8 *temp = static_cast<u8 *>(realloc(response->m_string.items, sizeof(u8) * (response->m_string.capacity * 2)));
+                        if (temp == NULL)
+                        {
+                            LOGE("Allocation failed");
+                            response->m_string.count = 0;
+                            response->m_string.capacity = 0;
+                            free(response->m_string.items);
+                            return ESP_ERR_NO_MEM;
+                        }
+                        response->m_string.items = temp;
+                        response->m_string.capacity *= 2;
+                    }
+                    response->m_string.count += data_length;
+                    UNUSED(std::memcpy(response->m_string.items, data, data_length));
                     // arena_sb_append_buf(&response->m_buffer_arena, &response->m_sb, data, data_length);
-                    response->m_callback(data, data_length);
+
                     break;
                 }
                 case HTTP_EVENT_ON_FINISH:
@@ -204,15 +233,16 @@ namespace Omega
                 LOGE("esp_http_client_cleanup failed with: %s", esp_err_to_name(err));
                 return {eFAILED, {}};
             }
-            u8 *internal_buffer = (u8 *)calloc(response.m_sb.count + 1, sizeof(u8));
+            u8 *internal_buffer = (u8 *)calloc(response.m_string.count + 1, sizeof(u8));
             if (nullptr == internal_buffer)
             {
                 LOGE("allocating buffer failed");
                 return {eFAILED, {}};
             }
-            UNUSED(std::memcpy(internal_buffer, response.m_sb.items, response.m_sb.count));
-            arena_free(&response.m_buffer_arena);
-            return {eSUCCESS, {static_cast<u16>(status), response.m_header, {internal_buffer, CHeapDeleter()}, response.m_sb.count}};
+            UNUSED(std::memcpy(internal_buffer, response.m_string.items, response.m_string.count));
+            // arena_free(&response.m_buffer_arena);
+            free(response.m_string.items);
+            return {eSUCCESS, {static_cast<u16>(status), response.m_header, {internal_buffer, CHeapDeleter()}, response.m_string.count}};
         }
 
         Response ESP32xx::perform_chunked(const char *host, u16 port, const char *path, const Authentication &auth, const Header &header, std::function<void(const u8 *data, size_t data_length)> chunked_callback) noexcept
@@ -269,7 +299,7 @@ namespace Omega
                     _Response *response = static_cast<_Response *>(evt->user_data);
                     if (nullptr == response)
                         break;
-                    // arena_sb_append_buf(&response->m_buffer_arena, &response->m_sb, data, data_length);
+                    arena_sb_append_buf(&response->m_buffer_arena, &response->m_sb, data, data_length);
                     response->m_callback(data, data_length);
                     break;
                 }
