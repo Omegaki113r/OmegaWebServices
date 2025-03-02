@@ -10,7 +10,7 @@
  * File Created: Friday, 21st February 2025 4:30:23 pm
  * Author: Omegaki113r (omegaki113r@gmail.com)
  * -----
- * Last Modified: Sunday, 2nd March 2025 3:42:14 am
+ * Last Modified: Sunday, 2nd March 2025 4:41:18 am
  * Modified By: Omegaki113r (omegaki113r@gmail.com)
  * -----
  * Copyright 2025 - 2025 0m3g4ki113r, Xtronic
@@ -66,6 +66,9 @@
 #define HEX_LOGE(buffer, length)
 #endif
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmissing-field-initializers"
+
 namespace Omega
 {
     namespace WebServices
@@ -81,17 +84,17 @@ namespace Omega
             return eSUCCESS;
         }
 
-        Response ESP32xx::perform(const char *url, const Authentication &auth, const Header &header) noexcept
+        Response ESP32xx::perform(Request::RequsetType type, const char *url, const Authentication &auth, const Header &header) noexcept
         {
-            return perform_chunked(url, auth, header, nullptr);
+            return perform_chunked(type, url, auth, header, nullptr);
         }
 
-        Response ESP32xx::perform(const char *host, u16 port, const char *path, const Authentication &auth, const Header &header) noexcept
+        Response ESP32xx::perform(Request::RequsetType type, const char *host, u16 port, const char *path, const Authentication &auth, const Header &header) noexcept
         {
-            return perform_chunked(host, port, path, auth, header, nullptr);
+            return perform_chunked(type, host, port, path, auth, header, nullptr);
         }
 
-        Response ESP32xx::perform_chunked(const char *url, const Authentication &auth, const Header &header, std::function<void(const u8 *data, size_t data_length)> chunked_callback) noexcept
+        Response ESP32xx::perform_chunked(Request::RequsetType type, const char *url, const Authentication &auth, const Header &header, std::function<void(const u8 *data, size_t data_length)> chunked_callback) noexcept
         {
             typedef struct
             {
@@ -101,9 +104,9 @@ namespace Omega
             } String;
             struct _Response
             {
+                std::function<void(const u8 *data, size_t data_length)> m_callback;
                 Header m_header;
                 String m_string;
-                std::function<void(const u8 *data, size_t data_length)> m_callback;
             };
             const auto http_handler = [](esp_http_client_event_t *evt)
             {
@@ -130,10 +133,10 @@ namespace Omega
                     LOGD("HTTP_EVENT_ON_HEADER");
                     const char *key = evt->header_key;
                     const char *value = evt->header_value;
-                    _Response *response = static_cast<_Response *>(evt->user_data);
-                    if (nullptr == response)
+                    _Response *_response = static_cast<_Response *>(evt->user_data);
+                    if (nullptr == _response)
                         break;
-                    response->m_header.add_header(key, value);
+                    _response->m_header.add_header(key, value);
                     break;
                 }
                 case HTTP_EVENT_ON_DATA:
@@ -141,42 +144,42 @@ namespace Omega
                     LOGD("HTTP_EVENT_ON_DATA");
                     u8 *data = static_cast<u8 *>(evt->data);
                     const size_t data_length = evt->data_len;
-                    _Response *response = static_cast<_Response *>(evt->user_data);
-                    if (nullptr == response)
+                    _Response *_response = static_cast<_Response *>(evt->user_data);
+                    if (nullptr == _response)
                         break;
-                    if (response->m_callback)
+                    if (_response->m_callback)
                     {
-                        response->m_callback(data, data_length);
+                        _response->m_callback(data, data_length);
                         break;
                     }
-                    if (0 == response->m_string.capacity)
+                    if (0 == _response->m_string.capacity)
                     {
-                        response->m_string.count = 0;
-                        response->m_string.capacity = 1000;
-                        response->m_string.items = (u8 *)malloc(sizeof(u8) * response->m_string.capacity);
-                        if (nullptr == response->m_string.items)
+                        _response->m_string.count = 0;
+                        _response->m_string.capacity = 1000;
+                        _response->m_string.items = (u8 *)malloc(sizeof(u8) * _response->m_string.capacity);
+                        if (nullptr == _response->m_string.items)
                         {
                             LOGE("Allocation failed");
                             return ESP_ERR_NO_MEM;
                         }
                     }
-                    if (response->m_string.capacity <= data_length + response->m_string.count)
+                    if (_response->m_string.capacity <= data_length + _response->m_string.count)
                     {
-                        u8 *temp = static_cast<u8 *>(realloc(response->m_string.items, sizeof(u8) * (response->m_string.capacity * 2)));
+                        u8 *temp = static_cast<u8 *>(realloc(_response->m_string.items, sizeof(u8) * (_response->m_string.capacity * 2)));
                         if (temp == NULL)
                         {
                             LOGE("Allocation failed");
-                            response->m_string.count = 0;
-                            response->m_string.capacity = 0;
-                            free(response->m_string.items);
+                            _response->m_string.count = 0;
+                            _response->m_string.capacity = 0;
+                            free(_response->m_string.items);
                             return ESP_ERR_NO_MEM;
                         }
-                        response->m_string.items = temp;
-                        response->m_string.capacity *= 2;
+                        _response->m_string.items = temp;
+                        _response->m_string.capacity *= 2;
                     }
-                    response->m_string.count += data_length;
-                    UNUSED(std::memcpy(response->m_string.items, data, data_length));
-                    // arena_sb_append_buf(&response->m_buffer_arena, &response->m_sb, data, data_length);
+                    _response->m_string.count += data_length;
+                    UNUSED(std::memcpy(_response->m_string.items, data, data_length));
+                    // arena_sb_append_buf(&_response->m_buffer_arena, &_response->m_sb, data, data_length);
 
                     break;
                 }
@@ -203,8 +206,22 @@ namespace Omega
                 }
                 return ESP_OK;
             };
-            _Response response{.m_callback = chunked_callback};
-            const esp_http_client_config_t config{.url = url, .username = auth.username, .password = auth.password, .event_handler = http_handler, .user_data = &response};
+            _Response _response{chunked_callback};
+            esp_http_client_method_t method = HTTP_METHOD_GET;
+            switch (type)
+            {
+            case Request::RequsetType::GET:
+            {
+                method = HTTP_METHOD_GET;
+                break;
+            }
+            case Request::RequsetType::POST:
+            {
+                method = HTTP_METHOD_POST;
+                break;
+            }
+            }
+            const esp_http_client_config_t config{.url = url, .username = auth.username, .password = auth.password, .method = method, .event_handler = http_handler, .user_data = &_response};
             const esp_http_client_handle_t http_handle = esp_http_client_init(&config);
             if (nullptr == http_handle)
             {
@@ -226,26 +243,25 @@ namespace Omega
                 return {eFAILED, {}};
             }
             const auto status = esp_http_client_get_status_code(http_handle);
-            const auto content_size = esp_http_client_get_content_length(http_handle);
+            [[maybe_unused]] const auto content_size = esp_http_client_get_content_length(http_handle);
             LOGD("Status: %d | Content size: %lld", status, content_size);
             if (const auto err = esp_http_client_cleanup(http_handle); ESP_OK != err)
             {
                 LOGE("esp_http_client_cleanup failed with: %s", esp_err_to_name(err));
                 return {eFAILED, {}};
             }
-            u8 *internal_buffer = (u8 *)calloc(response.m_string.count + 1, sizeof(u8));
+            u8 *internal_buffer = (u8 *)calloc(_response.m_string.count + 1, sizeof(u8));
             if (nullptr == internal_buffer)
             {
                 LOGE("allocating buffer failed");
                 return {eFAILED, {}};
             }
-            UNUSED(std::memcpy(internal_buffer, response.m_string.items, response.m_string.count));
-            // arena_free(&response.m_buffer_arena);
-            free(response.m_string.items);
-            return {eSUCCESS, {static_cast<u16>(status), response.m_header, {internal_buffer, CHeapDeleter()}, response.m_string.count}};
+            UNUSED(std::memcpy(internal_buffer, _response.m_string.items, _response.m_string.count));
+            free(_response.m_string.items);
+            return {eSUCCESS, {static_cast<u16>(status), _response.m_header, {internal_buffer, CHeapDeleter()}, _response.m_string.count}};
         }
 
-        Response ESP32xx::perform_chunked(const char *host, u16 port, const char *path, const Authentication &auth, const Header &header, std::function<void(const u8 *data, size_t data_length)> chunked_callback) noexcept
+        Response ESP32xx::perform_chunked(Request::RequsetType type, const char *host, u16 port, const char *path, const Authentication &auth, const Header &header, std::function<void(const u8 *data, size_t data_length)> chunked_callback) noexcept
         {
             LOGE("NOT IMPLEMENTED");
             return {eFAILED, {}};
@@ -253,3 +269,5 @@ namespace Omega
 
     } // namespace WebServices
 } // namespace Omega
+
+#pragma GCC diagnostic pop

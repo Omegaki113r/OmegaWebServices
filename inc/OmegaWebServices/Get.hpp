@@ -10,7 +10,7 @@
  * File Created: Friday, 14th February 2025 8:30:47 pm
  * Author: Omegaki113r (omegaki113r@gmail.com)
  * -----
- * Last Modified: Saturday, 1st March 2025 5:13:23 am
+ * Last Modified: Sunday, 2nd March 2025 4:35:55 am
  * Modified By: Omegaki113r (omegaki113r@gmail.com)
  * -----
  * Copyright <<projectCreationYear>> - 2025 0m3g4ki113r, Xtronic
@@ -69,6 +69,7 @@ namespace Omega
             template <typename T>
             class GET : public RequestBase
             {
+                RequsetType m_type;
                 char m_url[100];
                 char m_host[100];
                 u16 m_port;
@@ -77,9 +78,18 @@ namespace Omega
                 Authentication m_authentication;
                 T m_hardware_base;
 
+                void set_type(RequsetType type) noexcept override { m_type = RequsetType::GET; }
+                GET &type(RequsetType type) noexcept override
+                {
+                    m_type = RequsetType::GET;
+                    return *this;
+                }
+
             public:
                 GET(T hardware_base) {}
                 ~GET() {}
+
+                RequsetType get_type() const noexcept override { return RequsetType::GET; }
 
                 const char *get_url() const noexcept override { return m_url; }
                 void set_url(const char *url) noexcept override
@@ -146,22 +156,22 @@ namespace Omega
                 {
                     if (0 < std::strlen(m_url))
                     {
-                        return m_hardware_base.perform(m_url, m_authentication, m_header);
+                        return m_hardware_base.perform(Request::RequsetType::GET, m_url, m_authentication, m_header);
                     }
                     else
                     {
-                        return m_hardware_base.perform(m_host, m_port, m_path, m_authentication, m_header);
+                        return m_hardware_base.perform(Request::RequsetType::GET, m_host, m_port, m_path, m_authentication, m_header);
                     }
                 }
                 Response perform_chunked(std::function<void(const u8 *data, size_t data_length)> chunked_callback) noexcept override
                 {
                     if (0 < std::strlen(m_url))
                     {
-                        return m_hardware_base.perform_chunked(m_url, m_authentication, m_header, chunked_callback);
+                        return m_hardware_base.perform_chunked(Request::RequsetType::GET, m_url, m_authentication, m_header, chunked_callback);
                     }
                     else
                     {
-                        return m_hardware_base.perform_chunked(m_host, m_port, m_path, m_authentication, m_header, chunked_callback);
+                        return m_hardware_base.perform_chunked(Request::RequsetType::GET, m_host, m_port, m_path, m_authentication, m_header, chunked_callback);
                     }
                 }
             };

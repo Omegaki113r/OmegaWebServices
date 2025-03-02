@@ -10,7 +10,7 @@
  * File Created: Friday, 14th February 2025 8:23:32 pm
  * Author: Omegaki113r (omegaki113r@gmail.com)
  * -----
- * Last Modified: Saturday, 1st March 2025 5:14:53 am
+ * Last Modified: Sunday, 2nd March 2025 4:23:47 am
  * Modified By: Omegaki113r (omegaki113r@gmail.com)
  * -----
  * Copyright <<projectCreationYear>> - 2025 0m3g4ki113r, Xtronic
@@ -69,11 +69,18 @@ namespace Omega
     {
         namespace Request
         {
+            enum class RequsetType
+            {
+                GET,
+                POST
+            };
+
             class RequestBase
             {
             public:
                 RequestBase() {}
                 ~RequestBase() {}
+                virtual RequestBase &type(RequsetType type) noexcept = 0;
                 virtual RequestBase &url(const char *url) noexcept = 0;
                 virtual RequestBase &host(const char *host) noexcept = 0;
                 virtual RequestBase &port(u16 port) noexcept = 0;
@@ -81,6 +88,7 @@ namespace Omega
                 virtual RequestBase &header(const Header &header) noexcept = 0;
                 virtual RequestBase &authentication(const Authentication &auth) noexcept = 0;
 
+                virtual void set_type(RequsetType type) noexcept = 0;
                 virtual void set_url(const char *url) noexcept = 0;
                 virtual void set_host(const char *host) noexcept = 0;
                 virtual void set_port(u16 port) noexcept = 0;
@@ -88,6 +96,7 @@ namespace Omega
                 virtual void set_header(const Header &header) noexcept = 0;
                 virtual void set_authentication(const Authentication &auth) noexcept = 0;
 
+                virtual RequsetType get_type() const noexcept = 0;
                 virtual const char *get_url() const noexcept = 0;
                 virtual const char *get_host() const noexcept = 0;
                 virtual u16 get_port() const noexcept = 0;
