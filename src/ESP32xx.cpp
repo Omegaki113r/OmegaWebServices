@@ -10,7 +10,7 @@
  * File Created: Friday, 21st February 2025 4:30:23 pm
  * Author: Omegaki113r (omegaki113r@gmail.com)
  * -----
- * Last Modified: Monday, 3rd March 2025 5:07:33 am
+ * Last Modified: Monday, 3rd March 2025 11:14:34 pm
  * Modified By: Omegaki113r (omegaki113r@gmail.com)
  * -----
  * Copyright 2025 - 2025 0m3g4ki113r, Xtronic
@@ -236,23 +236,24 @@ namespace Omega
                 }
             }
 
-            // if (const auto err = esp_http_client_open(http_handle, 0); ESP_OK != err)
-            // {
-            //     LOGE("esp_http_client_open failed with %s", esp_err_to_name(err));
-            //     return {eFAILED, {}};
-            // }
-            // const auto content_length = esp_http_client_fetch_headers(http_handle);
-            // char buffer[100]{};
-            // int read_length = 0;
-            // do
-            // {
-            //     read_length = esp_http_client_read(http_handle, buffer, 100);
-            // } while (0 < read_length);
-            // if (const auto err = esp_http_client_close(http_handle); ESP_OK != err)
-            // {
-            //     LOGE("esp_http_client_close failed with %s", esp_err_to_name(err));
-            //     return {eFAILED, {}};
-            // }
+            if (const auto err = esp_http_client_open(http_handle, 0); ESP_OK != err)
+            {
+                LOGE("esp_http_client_open failed with %s", esp_err_to_name(err));
+                return {eFAILED, {}};
+            }
+            const auto content_length = esp_http_client_fetch_headers(http_handle);
+            char *buffer = (char *)std::calloc(2000, sizeof(char));
+            int read_length = 0;
+            do
+            {
+                read_length = esp_http_client_read(http_handle, buffer, 2000);
+            } while (0 < read_length);
+            std::free(buffer);
+            if (const auto err = esp_http_client_close(http_handle); ESP_OK != err)
+            {
+                LOGE("esp_http_client_close failed with %s", esp_err_to_name(err));
+                return {eFAILED, {}};
+            }
             // for (const auto &[key, value] : _response.m_header)
             // {
             //     LOGD("%s : %s", key, value);
@@ -268,12 +269,12 @@ namespace Omega
             // // {
             // // }
 
-            if (const auto err = esp_http_client_perform(http_handle); ESP_OK != err)
-            {
-                LOGE("esp_http_client_perform failed with %s", esp_err_to_name(err));
-                cleanup(http_handle);
-                return {eFAILED, {}};
-            }
+            // if (const auto err = esp_http_client_perform(http_handle); ESP_OK != err)
+            // {
+            //     LOGE("esp_http_client_perform failed with %s", esp_err_to_name(err));
+            //     cleanup(http_handle);
+            //     return {eFAILED, {}};
+            // }
             const auto status = esp_http_client_get_status_code(http_handle);
             [[maybe_unused]] const auto content_size = esp_http_client_get_content_length(http_handle);
             LOGD("Status: %d | Content size: %lld", status, content_size);
