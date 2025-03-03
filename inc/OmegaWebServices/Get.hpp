@@ -10,7 +10,7 @@
  * File Created: Friday, 14th February 2025 8:30:47 pm
  * Author: Omegaki113r (omegaki113r@gmail.com)
  * -----
- * Last Modified: Sunday, 2nd March 2025 4:35:55 am
+ * Last Modified: Monday, 3rd March 2025 2:32:22 am
  * Modified By: Omegaki113r (omegaki113r@gmail.com)
  * -----
  * Copyright <<projectCreationYear>> - 2025 0m3g4ki113r, Xtronic
@@ -86,12 +86,18 @@ namespace Omega
                 }
 
             public:
-                GET(T hardware_base) {}
+                GET(T hardware_base) : m_hardware_base(hardware_base) {}
                 ~GET() {}
 
-                RequsetType get_type() const noexcept override { return RequsetType::GET; }
+                RequsetType get_type() const noexcept override
+                {
+                    return RequsetType::GET;
+                }
 
-                const char *get_url() const noexcept override { return m_url; }
+                const char *get_url() const noexcept override
+                {
+                    return m_url;
+                }
                 void set_url(const char *url) noexcept override
                 {
                     if (url)
@@ -104,7 +110,10 @@ namespace Omega
                     return *this;
                 }
 
-                const char *get_host() const noexcept override { return m_host; }
+                const char *get_host() const noexcept override
+                {
+                    return m_host;
+                }
                 void set_host(const char *host) noexcept override
                 {
                     if (host)
@@ -117,15 +126,24 @@ namespace Omega
                     return *this;
                 }
 
-                u16 get_port() const noexcept override { return m_port; }
-                void set_port(u16 port) noexcept override { m_port = port; }
+                u16 get_port() const noexcept override
+                {
+                    return m_port;
+                }
+                void set_port(u16 port) noexcept override
+                {
+                    m_port = port;
+                }
                 GET &port(u16 port) noexcept override
                 {
                     m_port = port;
                     return *this;
                 }
 
-                const char *get_path() const noexcept override { return m_path; }
+                const char *get_path() const noexcept override
+                {
+                    return m_path;
+                }
                 void set_path(const char *path) noexcept override
                 {
                     if (path)
@@ -138,15 +156,27 @@ namespace Omega
                     return *this;
                 }
 
-                const Header &get_header() const noexcept override { return m_header; }
-                void set_header(const Header &in_header) noexcept override { m_header = in_header; }
+                const Header &get_header() const noexcept override
+                {
+                    return m_header;
+                }
+                void set_header(const Header &in_header) noexcept override
+                {
+                    m_header = in_header;
+                }
                 GET &header(const Header &in_header) noexcept override
                 {
                     m_header = in_header;
                     return *this;
                 }
-                const Authentication &get_authentication() const noexcept override { return m_authentication; }
-                void set_authentication(const Authentication &in_auth) noexcept override { m_authentication = in_auth; }
+                const Authentication &get_authentication() const noexcept override
+                {
+                    return m_authentication;
+                }
+                void set_authentication(const Authentication &in_auth) noexcept override
+                {
+                    m_authentication = in_auth;
+                }
                 GET &authentication(const Authentication &in_auth) noexcept override
                 {
                     m_authentication = in_auth;

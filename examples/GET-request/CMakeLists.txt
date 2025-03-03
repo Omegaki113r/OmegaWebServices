@@ -19,7 +19,7 @@ add_compile_definitions(CONFIG_OMEGA_LOGGING=1)
 # add_compile_definitions(CONFIG_OMEGA_WEB_SERVICES_DEBUG=1)
 # add_compile_definitions(CONFIG_OMEGA_WEB_SERVICES_INFO=1)
 # add_compile_definitions(CONFIG_OMEGA_WEB_SERVICES_WARN=1)
-add_compile_definitions(CONFIG_OMEGA_WEB_SERVICES_ERROR=1)
+# add_compile_definitions(CONFIG_OMEGA_WEB_SERVICES_ERROR=1)
 
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 project(GET-request)

@@ -10,7 +10,7 @@
  * File Created: Friday, 21st February 2025 4:30:23 pm
  * Author: Omegaki113r (omegaki113r@gmail.com)
  * -----
- * Last Modified: Sunday, 2nd March 2025 4:41:18 am
+ * Last Modified: Monday, 3rd March 2025 5:07:33 am
  * Modified By: Omegaki113r (omegaki113r@gmail.com)
  * -----
  * Copyright 2025 - 2025 0m3g4ki113r, Xtronic
@@ -180,7 +180,6 @@ namespace Omega
                     _response->m_string.count += data_length;
                     UNUSED(std::memcpy(_response->m_string.items, data, data_length));
                     // arena_sb_append_buf(&_response->m_buffer_arena, &_response->m_sb, data, data_length);
-
                     break;
                 }
                 case HTTP_EVENT_ON_FINISH:
@@ -236,6 +235,39 @@ namespace Omega
                     return {eFAILED, {}};
                 }
             }
+
+            // if (const auto err = esp_http_client_open(http_handle, 0); ESP_OK != err)
+            // {
+            //     LOGE("esp_http_client_open failed with %s", esp_err_to_name(err));
+            //     return {eFAILED, {}};
+            // }
+            // const auto content_length = esp_http_client_fetch_headers(http_handle);
+            // char buffer[100]{};
+            // int read_length = 0;
+            // do
+            // {
+            //     read_length = esp_http_client_read(http_handle, buffer, 100);
+            // } while (0 < read_length);
+            // if (const auto err = esp_http_client_close(http_handle); ESP_OK != err)
+            // {
+            //     LOGE("esp_http_client_close failed with %s", esp_err_to_name(err));
+            //     return {eFAILED, {}};
+            // }
+            // for (const auto &[key, value] : _response.m_header)
+            // {
+            //     LOGD("%s : %s", key, value);
+            // }
+            // // if (nullptr != chunked_callback)
+            // // {
+            // //     const auto read_length = esp_http_client_read_read();
+            // // }
+
+            // // HEX_LOGD(buffer, read_length);
+            // return {eFAILED, {}};
+            // // if ()
+            // // {
+            // // }
+
             if (const auto err = esp_http_client_perform(http_handle); ESP_OK != err)
             {
                 LOGE("esp_http_client_perform failed with %s", esp_err_to_name(err));
