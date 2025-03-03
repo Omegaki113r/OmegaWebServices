@@ -10,7 +10,7 @@
  * File Created: Friday, 21st February 2025 4:30:23 pm
  * Author: Omegaki113r (omegaki113r@gmail.com)
  * -----
- * Last Modified: Monday, 3rd March 2025 11:14:34 pm
+ * Last Modified: Tuesday, 4th March 2025 12:49:24 am
  * Modified By: Omegaki113r (omegaki113r@gmail.com)
  * -----
  * Copyright 2025 - 2025 0m3g4ki113r, Xtronic
@@ -84,17 +84,7 @@ namespace Omega
             return eSUCCESS;
         }
 
-        Response ESP32xx::perform(Request::RequsetType type, const char *url, const Authentication &auth, const Header &header) noexcept
-        {
-            return perform_chunked(type, url, auth, header, nullptr);
-        }
-
-        Response ESP32xx::perform(Request::RequsetType type, const char *host, u16 port, const char *path, const Authentication &auth, const Header &header) noexcept
-        {
-            return perform_chunked(type, host, port, path, auth, header, nullptr);
-        }
-
-        Response ESP32xx::perform_chunked(Request::RequsetType type, const char *url, const Authentication &auth, const Header &header, std::function<void(const u8 *data, size_t data_length)> chunked_callback) noexcept
+        Response ESP32xx::perform(Request::RequsetType type, const char *url, const Authentication &auth, const Header &header, std::function<void(const u8 *data, size_t data_length)> chunked_callback) noexcept
         {
             typedef struct
             {
@@ -149,6 +139,7 @@ namespace Omega
                         break;
                     if (_response->m_callback)
                     {
+                        _response->m_string.count += data_length;
                         _response->m_callback(data, data_length);
                         break;
                     }
@@ -236,24 +227,24 @@ namespace Omega
                 }
             }
 
-            if (const auto err = esp_http_client_open(http_handle, 0); ESP_OK != err)
-            {
-                LOGE("esp_http_client_open failed with %s", esp_err_to_name(err));
-                return {eFAILED, {}};
-            }
-            const auto content_length = esp_http_client_fetch_headers(http_handle);
-            char *buffer = (char *)std::calloc(2000, sizeof(char));
-            int read_length = 0;
-            do
-            {
-                read_length = esp_http_client_read(http_handle, buffer, 2000);
-            } while (0 < read_length);
-            std::free(buffer);
-            if (const auto err = esp_http_client_close(http_handle); ESP_OK != err)
-            {
-                LOGE("esp_http_client_close failed with %s", esp_err_to_name(err));
-                return {eFAILED, {}};
-            }
+            // if (const auto err = esp_http_client_open(http_handle, 0); ESP_OK != err)
+            // {
+            //     LOGE("esp_http_client_open failed with %s", esp_err_to_name(err));
+            //     return {eFAILED, {}};
+            // }
+            // const auto content_length = esp_http_client_fetch_headers(http_handle);
+            // char *buffer = (char *)std::calloc(2000, sizeof(char));
+            // int read_length = 0;
+            // do
+            // {
+            //     read_length = esp_http_client_read(http_handle, buffer, 2000);
+            // } while (0 < read_length);
+            // std::free(buffer);
+            // if (const auto err = esp_http_client_close(http_handle); ESP_OK != err)
+            // {
+            //     LOGE("esp_http_client_close failed with %s", esp_err_to_name(err));
+            //     return {eFAILED, {}};
+            // }
             // for (const auto &[key, value] : _response.m_header)
             // {
             //     LOGD("%s : %s", key, value);
@@ -269,12 +260,12 @@ namespace Omega
             // // {
             // // }
 
-            // if (const auto err = esp_http_client_perform(http_handle); ESP_OK != err)
-            // {
-            //     LOGE("esp_http_client_perform failed with %s", esp_err_to_name(err));
-            //     cleanup(http_handle);
-            //     return {eFAILED, {}};
-            // }
+            if (const auto err = esp_http_client_perform(http_handle); ESP_OK != err)
+            {
+                LOGE("esp_http_client_perform failed with %s", esp_err_to_name(err));
+                cleanup(http_handle);
+                return {eFAILED, {}};
+            }
             const auto status = esp_http_client_get_status_code(http_handle);
             [[maybe_unused]] const auto content_size = esp_http_client_get_content_length(http_handle);
             LOGD("Status: %d | Content size: %lld", status, content_size);
@@ -283,18 +274,22 @@ namespace Omega
                 LOGE("esp_http_client_cleanup failed with: %s", esp_err_to_name(err));
                 return {eFAILED, {}};
             }
-            u8 *internal_buffer = (u8 *)calloc(_response.m_string.count + 1, sizeof(u8));
-            if (nullptr == internal_buffer)
+            u8 *internal_buffer = nullptr;
+            if (nullptr == chunked_callback)
             {
-                LOGE("allocating buffer failed");
-                return {eFAILED, {}};
+                internal_buffer = (u8 *)calloc(_response.m_string.count + 1, sizeof(u8));
+                if (nullptr == internal_buffer)
+                {
+                    LOGE("allocating buffer failed");
+                    return {eFAILED, {}};
+                }
+                UNUSED(std::memcpy(internal_buffer, _response.m_string.items, _response.m_string.count));
+                free(_response.m_string.items);
             }
-            UNUSED(std::memcpy(internal_buffer, _response.m_string.items, _response.m_string.count));
-            free(_response.m_string.items);
             return {eSUCCESS, {static_cast<u16>(status), _response.m_header, {internal_buffer, CHeapDeleter()}, _response.m_string.count}};
         }
 
-        Response ESP32xx::perform_chunked(Request::RequsetType type, const char *host, u16 port, const char *path, const Authentication &auth, const Header &header, std::function<void(const u8 *data, size_t data_length)> chunked_callback) noexcept
+        Response ESP32xx::perform(Request::RequsetType type, const char *host, u16 port, const char *path, const Authentication &auth, const Header &header, std::function<void(const u8 *data, size_t data_length)> chunked_callback) noexcept
         {
             LOGE("NOT IMPLEMENTED");
             return {eFAILED, {}};

@@ -10,7 +10,7 @@
  * File Created: Friday, 14th February 2025 8:23:32 pm
  * Author: Omegaki113r (omegaki113r@gmail.com)
  * -----
- * Last Modified: Sunday, 2nd March 2025 4:23:47 am
+ * Last Modified: Tuesday, 4th March 2025 12:28:49 am
  * Modified By: Omegaki113r (omegaki113r@gmail.com)
  * -----
  * Copyright <<projectCreationYear>> - 2025 0m3g4ki113r, Xtronic
@@ -104,8 +104,7 @@ namespace Omega
                 virtual const Header &get_header() const noexcept = 0;
                 virtual const Authentication &get_authentication() const noexcept = 0;
 
-                virtual Response perform() noexcept = 0;
-                virtual Response perform_chunked(std::function<void(const u8 *data, size_t data_length)>) noexcept = 0;
+                virtual Response perform(std::function<void(const u8 *data, size_t data_length)> callback) noexcept = 0;
             };
         } // namespace Request
     } // namespace WebServices
