@@ -10,7 +10,7 @@
  * File Created: Friday, 21st February 2025 4:30:23 pm
  * Author: Omegaki113r (omegaki113r@gmail.com)
  * -----
- * Last Modified: Tuesday, 4th March 2025 12:49:24 am
+ * Last Modified: Wednesday, 5th March 2025 11:42:14 pm
  * Modified By: Omegaki113r (omegaki113r@gmail.com)
  * -----
  * Copyright 2025 - 2025 0m3g4ki113r, Xtronic
@@ -132,6 +132,7 @@ namespace Omega
                 case HTTP_EVENT_ON_DATA:
                 {
                     LOGD("HTTP_EVENT_ON_DATA");
+                    break;
                     u8 *data = static_cast<u8 *>(evt->data);
                     const size_t data_length = evt->data_len;
                     _Response *_response = static_cast<_Response *>(evt->user_data);
@@ -227,48 +228,29 @@ namespace Omega
                 }
             }
 
-            // if (const auto err = esp_http_client_open(http_handle, 0); ESP_OK != err)
-            // {
-            //     LOGE("esp_http_client_open failed with %s", esp_err_to_name(err));
-            //     return {eFAILED, {}};
-            // }
-            // const auto content_length = esp_http_client_fetch_headers(http_handle);
-            // char *buffer = (char *)std::calloc(2000, sizeof(char));
-            // int read_length = 0;
-            // do
-            // {
-            //     read_length = esp_http_client_read(http_handle, buffer, 2000);
-            // } while (0 < read_length);
-            // std::free(buffer);
-            // if (const auto err = esp_http_client_close(http_handle); ESP_OK != err)
-            // {
-            //     LOGE("esp_http_client_close failed with %s", esp_err_to_name(err));
-            //     return {eFAILED, {}};
-            // }
-            // for (const auto &[key, value] : _response.m_header)
-            // {
-            //     LOGD("%s : %s", key, value);
-            // }
-            // // if (nullptr != chunked_callback)
-            // // {
-            // //     const auto read_length = esp_http_client_read_read();
-            // // }
-
-            // // HEX_LOGD(buffer, read_length);
-            // return {eFAILED, {}};
-            // // if ()
-            // // {
-            // // }
-
-            if (const auto err = esp_http_client_perform(http_handle); ESP_OK != err)
+            if (const auto err = esp_http_client_open(http_handle, 0); ESP_OK != err)
             {
-                LOGE("esp_http_client_perform failed with %s", esp_err_to_name(err));
-                cleanup(http_handle);
+                LOGE("esp_http_client_open failed with %s", esp_err_to_name(err));
+                return {eFAILED, {}};
+            }
+            const auto content_length = esp_http_client_fetch_headers(http_handle);
+            char *buffer = (char *)std::calloc(2000, sizeof(char));
+            int read_length = 0;
+            do
+            {
+                read_length = esp_http_client_read(http_handle, buffer, 2000);
+                if (nullptr != chunked_callback && 0 < read_length)
+                {
+                    chunked_callback(reinterpret_cast<u8 *>(buffer), read_length);
+                }
+            } while (0 < read_length);
+            std::free(buffer);
+            if (const auto err = esp_http_client_close(http_handle); ESP_OK != err)
+            {
+                LOGE("esp_http_client_close failed with %s", esp_err_to_name(err));
                 return {eFAILED, {}};
             }
             const auto status = esp_http_client_get_status_code(http_handle);
-            [[maybe_unused]] const auto content_size = esp_http_client_get_content_length(http_handle);
-            LOGD("Status: %d | Content size: %lld", status, content_size);
             if (const auto err = esp_http_client_cleanup(http_handle); ESP_OK != err)
             {
                 LOGE("esp_http_client_cleanup failed with: %s", esp_err_to_name(err));
@@ -287,6 +269,48 @@ namespace Omega
                 free(_response.m_string.items);
             }
             return {eSUCCESS, {static_cast<u16>(status), _response.m_header, {internal_buffer, CHeapDeleter()}, _response.m_string.count}};
+            // for (const auto &[key, value] : _response.m_header)
+            // {
+            //     LOGD("%s : %s", key, value);
+            // }
+            // // if (nullptr != chunked_callback)
+            // // {
+            // //     const auto read_length = esp_http_client_read_read();
+            // // }
+
+            // // HEX_LOGD(buffer, read_length);
+            // return {eFAILED, {}};
+            // // if ()
+            // // {
+            // // }
+
+            // if (const auto err = esp_http_client_perform(http_handle); ESP_OK != err)
+            // {
+            //     LOGE("esp_http_client_perform failed with %s", esp_err_to_name(err));
+            //     cleanup(http_handle);
+            //     return {eFAILED, {}};
+            // }
+            // const auto status = esp_http_client_get_status_code(http_handle);
+            // [[maybe_unused]] const auto content_size = esp_http_client_get_content_length(http_handle);
+            // LOGD("Status: %d | Content size: %lld", status, content_size);
+            // if (const auto err = esp_http_client_cleanup(http_handle); ESP_OK != err)
+            // {
+            //     LOGE("esp_http_client_cleanup failed with: %s", esp_err_to_name(err));
+            //     return {eFAILED, {}};
+            // }
+            // u8 *internal_buffer = nullptr;
+            // if (nullptr == chunked_callback)
+            // {
+            //     internal_buffer = (u8 *)calloc(_response.m_string.count + 1, sizeof(u8));
+            //     if (nullptr == internal_buffer)
+            //     {
+            //         LOGE("allocating buffer failed");
+            //         return {eFAILED, {}};
+            //     }
+            //     UNUSED(std::memcpy(internal_buffer, _response.m_string.items, _response.m_string.count));
+            //     free(_response.m_string.items);
+            // }
+            // return {eSUCCESS, {static_cast<u16>(status), _response.m_header, {internal_buffer, CHeapDeleter()}, _response.m_string.count}};
         }
 
         Response ESP32xx::perform(Request::RequsetType type, const char *host, u16 port, const char *path, const Authentication &auth, const Header &header, std::function<void(const u8 *data, size_t data_length)> chunked_callback) noexcept
