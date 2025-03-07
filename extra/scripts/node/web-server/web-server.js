@@ -19,6 +19,10 @@
 * ----------	---	---------------------------------------------------------
 */
 
+const UPLOAD_IDX = 0;
+const OTA_IDX = 1;
+
+const request_paths = ['/uploads', '/ota'];
 
 const http = require('http');
 const fs = require('fs');
@@ -31,43 +35,88 @@ const upload = multer({
     // limits: { fileSize: 10 * 1024 * 1024 }, // Limit file size to 10 MB
 }).single('file'); // We expect a single file with the field name "file"
 
-// Create the server
-const server = http.createServer((req, res) => {
-    // Handle POST requests (File upload)
-    if (req.method === 'POST') {
-        if (req.url === '/uploads') {
-            // Use multer to handle file uploads
-            upload(req, res, (err) => {
-                if (err) {
-                    // If an error occurs during file upload
-                    res.statusCode = 400;
-                    res.setHeader('Content-Type', 'text/plain');
-                    res.end('Error uploading file: ' + err.message);
-                } else {
-                    // If the file is uploaded successfully
-                    res.statusCode = 200;
-                    res.setHeader('Content-Type', 'application/json');
-                    // res.setHeader('Content-Type', 'text/plain');
-                    res.end(JSON.stringify({
-                        message: 'File uploaded successfully!',
-                        file: req.file, // File information
-                    }));
-                }
-            });
-        } else {
+function handle_post(req, res) {
+    console.log(req);
+    upload(req, res, (err) => {
+        if (err) {
             // If an error occurs during file upload
             res.statusCode = 400;
             res.setHeader('Content-Type', 'text/plain');
-            res.end('Error uploading file');
+            res.end('Error uploading file: ' + err.message);
+        } else {
+            // If the file is uploaded successfully
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'application/json');
+            // res.setHeader('Content-Type', 'text/plain');
+            res.end(JSON.stringify({
+                message: 'File uploaded successfully!',
+                file: req.file, // File information
+            }));
         }
-    } else {
-        // For any non-POST request, return a simple message
-        res.statusCode = 200;
-        // res.setHeader('Content-Type', 'text/html');
-        res.setHeader('Content-Type', 'text/plain');
-        const data = fs.readFileSync('uploads/data.txt', 'utf8');
-        res.end(data);
+    });
+}
+
+function handle_get(request, result) { }
+
+// Create the server
+const server = http.createServer((req, res) => {
+    console.log(req.url);
+    switch (req.url) {
+        case request_paths[UPLOAD_IDX]: {
+            if ('POST' === req.method) {
+                handle_post(req, res);
+            }
+            break;
+        }
+        case request_paths[OTA_IDX]: {
+            if ('GET' === req.method) {
+                handle_get(req, res);
+            }
+            break;
+        }
+
+        default: {
+            res.statusCode = 404;
+            res.end();
+            break;
+        }
     }
+
+    // // Handle POST requests (File upload)
+    // if (req.method === 'POST') {
+    //     if (req.url === '/uploads') {
+    //         // Use multer to handle file uploads
+    //         upload(req, res, (err) => {
+    //             if (err) {
+    //                 // If an error occurs during file upload
+    //                 res.statusCode = 400;
+    //                 res.setHeader('Content-Type', 'text/plain');
+    //                 res.end('Error uploading file: ' + err.message);
+    //             } else {
+    //                 // If the file is uploaded successfully
+    //                 res.statusCode = 200;
+    //                 res.setHeader('Content-Type', 'application/json');
+    //                 // res.setHeader('Content-Type', 'text/plain');
+    //                 res.end(JSON.stringify({
+    //                     message: 'File uploaded successfully!',
+    //                     file: req.file, // File information
+    //                 }));
+    //             }
+    //         });
+    //     } else {
+    //         // If an error occurs during file upload
+    //         res.statusCode = 400;
+    //         res.setHeader('Content-Type', 'text/plain');
+    //         res.end('Error uploading file');
+    //     }
+    // } else {
+    //     // For any non-POST request, return a simple message
+    //     res.statusCode = 200;
+    //     // res.setHeader('Content-Type', 'text/html');
+    //     res.setHeader('Content-Type', 'text/plain');
+    //     const data = fs.readFileSync('uploads/data.txt', 'utf8');
+    //     res.end(data);
+    // }
 });
 
 // Define the port and hostname
