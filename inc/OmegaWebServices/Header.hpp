@@ -10,7 +10,7 @@
  * File Created: Wednesday, 8th January 2025 12:36:31 am
  * Author: Omegaki113r (omegaki113r@gmail.com)
  * -----
- * Last Modified: Friday, 28th February 2025 9:59:17 pm
+ * Last Modified: Friday, 7th March 2025 11:48:55 pm
  * Modified By: Omegaki113r (omegaki113r@gmail.com)
  * -----
  * Copyright 2025 - 2025 0m3g4ki113r, Xtronic
@@ -73,6 +73,14 @@ namespace Omega
         public:
             inline void add_header(const char *in_key, const char *in_value) noexcept
             {
+                if (nullptr == in_key || nullptr == in_value)
+                {
+                    return;
+                }
+                if (0 == std::strlen(in_key) || 0 == std::strlen(in_value))
+                {
+                    return;
+                }
                 const size_t key_length = std::strlen(in_key);
                 char *key = static_cast<char *>(arena_alloc(&arena, key_length + 1));
                 UNUSED(std::memcpy(key, in_key, key_length));

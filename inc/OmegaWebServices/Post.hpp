@@ -10,7 +10,7 @@
  * File Created: Monday, 3rd March 2025 2:29:14 am
  * Author: Omegaki113r (omegaki113r@gmail.com)
  * -----
- * Last Modified: Friday, 7th March 2025 1:32:37 am
+ * Last Modified: Friday, 7th March 2025 11:49:37 pm
  * Modified By: Omegaki113r (omegaki113r@gmail.com)
  * -----
  * Copyright <<projectCreationYear>> - 2025 0m3g4ki113r, Xtronic
@@ -169,6 +169,12 @@ namespace Omega
                     m_header = in_header;
                     return *this;
                 }
+                POST &header(const char *key, const char *value) noexcept override
+                {
+                    m_header.add_header(key, value);
+                    return *this;
+                }
+
                 const Authentication &get_authentication() const noexcept override
                 {
                     return m_authentication;
