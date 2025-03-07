@@ -10,7 +10,7 @@
  * File Created: Friday, 21st February 2025 4:30:23 pm
  * Author: Omegaki113r (omegaki113r@gmail.com)
  * -----
- * Last Modified: Friday, 7th March 2025 9:19:06 pm
+ * Last Modified: Saturday, 8th March 2025 3:45:52 am
  * Modified By: Omegaki113r (omegaki113r@gmail.com)
  * -----
  * Copyright 2025 - 2025 0m3g4ki113r, Xtronic
@@ -433,7 +433,7 @@ namespace Omega
             _string_builder.capacity = buffer_length;
             int read_length = 0;
 
-                        if (const auto err = esp_http_client_close(http_handle); ESP_OK != err)
+            if (const auto err = esp_http_client_close(http_handle); ESP_OK != err)
             {
                 LOGE("esp_http_client_close failed with %s", esp_err_to_name(err));
                 return {eFAILED, {}};

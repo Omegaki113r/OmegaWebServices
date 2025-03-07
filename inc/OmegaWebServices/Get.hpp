@@ -10,7 +10,7 @@
  * File Created: Friday, 14th February 2025 8:30:47 pm
  * Author: Omegaki113r (omegaki113r@gmail.com)
  * -----
- * Last Modified: Friday, 7th March 2025 11:49:20 pm
+ * Last Modified: Saturday, 8th March 2025 3:31:20 am
  * Modified By: Omegaki113r (omegaki113r@gmail.com)
  * -----
  * Copyright <<projectCreationYear>> - 2025 0m3g4ki113r, Xtronic
@@ -70,10 +70,10 @@ namespace Omega
             class GET : public RequestBase
             {
                 RequsetType m_type;
-                char m_url[100];
-                char m_host[100];
+                char m_url[100]{0};
+                char m_host[100]{0};
                 u16 m_port;
-                char m_path[100];
+                char m_path[100]{0};
                 Header m_header;
                 Authentication m_authentication;
                 T m_hardware_base;
@@ -146,12 +146,12 @@ namespace Omega
                 }
                 void set_path(const char *path) noexcept override
                 {
-                    if (path)
+                    if (nullptr != path)
                         memcpy(m_path, path, std::strlen(path));
                 }
                 GET &path(const char *path) noexcept override
                 {
-                    if (path)
+                    if (nullptr != path)
                         memcpy(m_path, path, std::strlen(path));
                     return *this;
                 }
