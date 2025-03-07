@@ -55,7 +55,9 @@ extern "C" void app_main(void)
     auto [status, data] = ::Omega::WebServices::Request::GET(::Omega::WebServices::ESP32xx())
                               .url(URL)
                               .perform(chunked_callback);
-    OMEGA_LOGI("[%d] execution time: %.1fs", data.body_size, ((float)esp_timer_get_time() - (float)start_time) / (1000.0f * 1000.0f));
+    OMEGA_LOGI("[%.1f MB] execution time: %.1fs",
+               static_cast<float>(data.body_size) / (1000.0f * 1000.0f),
+               (static_cast<float>(esp_timer_get_time()) - static_cast<float>(start_time)) / (1000.0f * 1000.0f));
     for (const auto &[key, value] : data.header)
     {
         OMEGA_LOGI("%s: %s", key, value);
