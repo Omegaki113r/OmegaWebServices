@@ -10,7 +10,7 @@
  * File Created: Monday, 3rd March 2025 2:29:14 am
  * Author: Omegaki113r (omegaki113r@gmail.com)
  * -----
- * Last Modified: Monday, 3rd March 2025 2:47:25 am
+ * Last Modified: Friday, 7th March 2025 1:32:37 am
  * Modified By: Omegaki113r (omegaki113r@gmail.com)
  * -----
  * Copyright <<projectCreationYear>> - 2025 0m3g4ki113r, Xtronic
@@ -182,26 +182,15 @@ namespace Omega
                     m_authentication = in_auth;
                     return *this;
                 }
-                Response perform() noexcept override
+                Response perform(std::function<void(const u8 *data, size_t data_length)> chunked_callback = nullptr) noexcept override
                 {
                     if (0 < std::strlen(m_url))
                     {
-                        return m_hardware_base.perform(Request::RequsetType::POST, m_url, m_authentication, m_header);
+                        return m_hardware_base.perform(Request::RequsetType::POST, m_url, m_authentication, m_header, chunked_callback);
                     }
                     else
                     {
-                        return m_hardware_base.perform(Request::RequsetType::POST, m_host, m_port, m_path, m_authentication, m_header);
-                    }
-                }
-                Response perform_chunked(std::function<void(const u8 *data, size_t data_length)> chunked_callback) noexcept override
-                {
-                    if (0 < std::strlen(m_url))
-                    {
-                        return m_hardware_base.perform_chunked(Request::RequsetType::POST, m_url, m_authentication, m_header, chunked_callback);
-                    }
-                    else
-                    {
-                        return m_hardware_base.perform_chunked(Request::RequsetType::POST, m_host, m_port, m_path, m_authentication, m_header, chunked_callback);
+                        return m_hardware_base.perform(Request::RequsetType::POST, m_host, m_port, m_path, m_authentication, m_header, chunked_callback);
                     }
                 }
             };

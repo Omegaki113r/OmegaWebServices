@@ -35,24 +35,31 @@ const upload = multer({
 const server = http.createServer((req, res) => {
     // Handle POST requests (File upload)
     if (req.method === 'POST') {
-        // Use multer to handle file uploads
-        upload(req, res, (err) => {
-            if (err) {
-                // If an error occurs during file upload
-                res.statusCode = 400;
-                res.setHeader('Content-Type', 'text/plain');
-                res.end('Error uploading file: ' + err.message);
-            } else {
-                // If the file is uploaded successfully
-                res.statusCode = 200;
-                res.setHeader('Content-Type', 'application/json');
-                // res.setHeader('Content-Type', 'text/plain');
-                res.end(JSON.stringify({
-                    message: 'File uploaded successfully!',
-                    file: req.file, // File information
-                }));
-            }
-        });
+        if (req.url === '/uploads') {
+            // Use multer to handle file uploads
+            upload(req, res, (err) => {
+                if (err) {
+                    // If an error occurs during file upload
+                    res.statusCode = 400;
+                    res.setHeader('Content-Type', 'text/plain');
+                    res.end('Error uploading file: ' + err.message);
+                } else {
+                    // If the file is uploaded successfully
+                    res.statusCode = 200;
+                    res.setHeader('Content-Type', 'application/json');
+                    // res.setHeader('Content-Type', 'text/plain');
+                    res.end(JSON.stringify({
+                        message: 'File uploaded successfully!',
+                        file: req.file, // File information
+                    }));
+                }
+            });
+        } else {
+            // If an error occurs during file upload
+            res.statusCode = 400;
+            res.setHeader('Content-Type', 'text/plain');
+            res.end('Error uploading file');
+        }
     } else {
         // For any non-POST request, return a simple message
         res.statusCode = 200;
