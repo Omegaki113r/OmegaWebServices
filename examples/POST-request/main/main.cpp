@@ -10,24 +10,13 @@
 
 #include <esp_http_client.h>
 
-// #include "OmegaWebServices/WebServices.hpp"
 #include "OmegaWebServices/ESP32xx.hpp"
 #include "OmegaWebServices/Post.hpp"
 #include "OmegaWebServices/Request.hpp"
 #include "OmegaWiFiController/WiFiController.hpp"
 
-// #define URL "https://httpbin.org/get"
-// #define URL "https://httpbin.org/stream/1"
-// #define URL "https://randomuser.me/api/"
 #define URL "http://192.168.43.159:3000/uploads"
-// #define URL "http://127.0.0.1:3000/uploads/"
 #define URL_LEN std::strlen(URL)
-
-#define URL_IMG "https://randomuser.me/api/portraits/thumb/women/27.jpg"
-#define URL_IMG_LEN std::strlen(URL_IMG)
-
-#define PATH "/uploads"
-#define PATH_LEN std::strlen(PATH)
 
 extern "C" void app_main(void)
 {
@@ -57,8 +46,9 @@ extern "C" void app_main(void)
     };
     auto [status, data] = ::Omega::WebServices::Request::POST(::Omega::WebServices::ESP32xx())
                               .url(URL)
-                              .path(PATH)
-                              .perform(chunked_callback);
+                              .header("Transfer-Encoding", "chunked")
+                              // .header("Content-Type", "application/octet-stream")
+                              .perform();
     OMEGA_LOGI("[%.1f MB] execution time: %.1fs",
                static_cast<float>(data.body_size) / (1000.0f * 1000.0f),
                (static_cast<float>(esp_timer_get_time()) - static_cast<float>(start_time)) / (1000.0f * 1000.0f));
