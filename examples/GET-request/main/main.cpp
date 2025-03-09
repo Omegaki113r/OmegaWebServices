@@ -19,7 +19,7 @@
 // #define URL "https://httpbin.org/get"
 // #define URL "https://httpbin.org/stream/1"
 // #define URL "https://randomuser.me/api/"
-#define URL "http://192.168.43.159:3000"
+#define URL "http://192.168.43.159:3000/ota"
 // #define URL "http://127.0.0.1:3000/uploads/"
 #define URL_LEN std::strlen(URL)
 
@@ -39,7 +39,8 @@ extern "C" void app_main(void)
     }
 
     ::Omega::WiFiController::initialize(::Omega::WiFiController::Mode::eSTATION_MODE);
-    ::Omega::WiFiController::connect("GalaxyS9+71b0", "bqwk9667");
+    // ::Omega::WiFiController::connect("GalaxyS9+71b0", "bqwk9667");
+    ::Omega::WiFiController::connect("Xtronic", "Omegaki113r");
     if (const auto [state, node] = ::Omega::WiFiController::wait_for_ip(); eSUCCESS != state)
     {
         OMEGA_LOGE("Waiting for IP failed");

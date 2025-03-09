@@ -20,60 +20,14 @@
 * ----------	---	---------------------------------------------------------
 */
 
+const express = require('express');
 
-const http = require('http');
-const fs = require('fs');
-const path = require('path');
-const multer = require('multer');
+const app = express();
 
-// Set up multer to store uploaded files
-const upload = multer({
-    dest: 'uploads/', // The directory where files will be uploaded
-    // limits: { fileSize: 10 * 1024 * 1024 }, // Limit file size to 10 MB
-}).single('file'); // We expect a single file with the field name "file"
-
-// Create the server
-const server = http.createServer((req, res) => {
-    // Handle POST requests (File upload)
-    if (req.method === 'POST') {
-        // Use multer to handle file uploads
-        upload(req, res, (err) => {
-            if (err) {
-                // If an error occurs during file upload
-                res.statusCode = 400;
-                res.setHeader('Content-Type', 'text/plain');
-                res.end('Error uploading file: ' + err.message);
-            } else {
-                // If the file is uploaded successfully
-                res.statusCode = 200;
-                res.setHeader('Content-Type', 'application/json');
-                // res.setHeader('Content-Type', 'text/plain');
-                res.end(JSON.stringify({
-                    message: 'File uploaded successfully!',
-                    file: req.file, // File information
-                }));
-            }
-        });
-    } else {
-        // For any non-POST request, return a simple message
-        res.statusCode = 200;
-        // res.setHeader('Content-Type', 'text/html');
-        res.setHeader('Content-Type', 'text/plain');
-        const data = fs.readFileSync('uploads/data.txt', 'utf8');
-        res.end(data);
-    }
+app.get("/ota", (request, response) => {
+    response.download("uploads/data.txt");
 });
 
-// Define the port and hostname
-const hostname = '192.168.1.4'; // localhost
-const port = 3000;
+// app.post("/log", (request, response) => { });
 
-// Start the server
-// server.listen(port, hostname, () => {
-//     console.log(`Server running at http://${hostname}:${port}/`);
-// });
-
-
-server.listen(port, () => {
-    console.log(`Server running at http://${hostname}:${port}/`);
-});
+app.listen(3000);

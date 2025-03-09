@@ -10,7 +10,7 @@
  * File Created: Friday, 21st February 2025 4:30:23 pm
  * Author: Omegaki113r (omegaki113r@gmail.com)
  * -----
- * Last Modified: Sunday, 9th March 2025 1:53:23 am
+ * Last Modified: Sunday, 9th March 2025 10:16:31 am
  * Modified By: Omegaki113r (omegaki113r@gmail.com)
  * -----
  * Copyright 2025 - 2025 0m3g4ki113r, Xtronic
@@ -197,10 +197,8 @@ namespace Omega
                 return ESP_OK;
             };
             _Response _response{chunked_callback};
-            esp_http_client_method_t method = HTTP_METHOD_GET;
 
-            esp_http_client_config_t config{.url = url, .username = auth.username, .password = auth.password, .method = method, .event_handler = http_handler, .user_data = &_response};
-            config.timeout_ms = 50 * 1000;
+            esp_http_client_config_t config{.url = url, .username = auth.username, .password = auth.password, .method = HTTP_METHOD_GET, .event_handler = http_handler, .user_data = &_response};
             const esp_http_client_handle_t http_handle = esp_http_client_init(&config);
             if (nullptr == http_handle)
             {
@@ -427,15 +425,15 @@ namespace Omega
                 }
             }
 
-            // LOGI("started");
+            LOGI("started");
             constexpr size_t file_size = 4 * 1024 * 1024;
-            // const auto start_time = esp_timer_get_time();
-            // if (const auto err = esp_http_client_open(http_handle, file_size); ESP_OK != err)
-            // {
-            //     LOGE("esp_http_client_open failed with %s", esp_err_to_name(err));
-            //     return {eFAILED, {}};
-            // }
-            // LOGI("running %.1f", (static_cast<float>(esp_timer_get_time()) - static_cast<float>(start_time)) / (1000.0f * 1000.0f));
+            const auto start_time = esp_timer_get_time();
+            if (const auto err = esp_http_client_open(http_handle, file_size); ESP_OK != err)
+            {
+                LOGE("esp_http_client_open failed with %s", esp_err_to_name(err));
+                return {eFAILED, {}};
+            }
+            LOGI("running %.1f", (static_cast<float>(esp_timer_get_time()) - static_cast<float>(start_time)) / (1000.0f * 1000.0f));
 
             // const auto content_length = esp_http_client_fetch_headers(http_handle);
             constexpr size_t buffer_length = 1 * 1024;
@@ -452,16 +450,14 @@ namespace Omega
             UNUSED(std::memset(_string_builder.items, 'h', buffer_length));
             for (size_t idx = 0; idx < file_size;)
             {
-                // esp_http_client_write(http_handle, (const char *)_string_builder.items, buffer_length);
-                esp_http_client_set_post_field(http_handle, (const char *)_string_builder.items, buffer_length);
-                esp_http_client_perform(http_handle);
+                esp_http_client_write(http_handle, (const char *)_string_builder.items, buffer_length);
                 idx += buffer_length;
             }
-            // if (const auto err = esp_http_client_close(http_handle); ESP_OK != err)
-            // {
-            //     LOGE("esp_http_client_close failed with %s", esp_err_to_name(err));
-            //     return {eFAILED, {}};
-            // }
+            if (const auto err = esp_http_client_close(http_handle); ESP_OK != err)
+            {
+                LOGE("esp_http_client_close failed with %s", esp_err_to_name(err));
+                return {eFAILED, {}};
+            }
             const auto status = esp_http_client_get_status_code(http_handle);
             if (const auto err = esp_http_client_cleanup(http_handle); ESP_OK != err)
             {
