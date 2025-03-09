@@ -10,7 +10,7 @@
  * File Created: Friday, 21st February 2025 4:30:23 pm
  * Author: Omegaki113r (omegaki113r@gmail.com)
  * -----
- * Last Modified: Saturday, 8th March 2025 10:55:48 pm
+ * Last Modified: Sunday, 9th March 2025 1:53:23 am
  * Modified By: Omegaki113r (omegaki113r@gmail.com)
  * -----
  * Copyright 2025 - 2025 0m3g4ki113r, Xtronic
@@ -199,7 +199,8 @@ namespace Omega
             _Response _response{chunked_callback};
             esp_http_client_method_t method = HTTP_METHOD_GET;
 
-            const esp_http_client_config_t config{.url = url, .username = auth.username, .password = auth.password, .method = method, .event_handler = http_handler, .user_data = &_response};
+            esp_http_client_config_t config{.url = url, .username = auth.username, .password = auth.password, .method = method, .event_handler = http_handler, .user_data = &_response};
+            config.timeout_ms = 50 * 1000;
             const esp_http_client_handle_t http_handle = esp_http_client_init(&config);
             if (nullptr == http_handle)
             {
