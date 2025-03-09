@@ -21,6 +21,7 @@
 */
 
 const express = require('express');
+const fs = require('fs');
 
 const app = express();
 
@@ -28,6 +29,25 @@ app.get("/ota", (request, response) => {
     response.download("uploads/data.txt");
 });
 
-// app.post("/log", (request, response) => { });
+app.post("/log", (request, response) => {
+    const writeStream = fs.createWriteStream('uploads/log.txt');
+    request.pipe(writeStream);
+
+    request.on('end', () => {
+        writeStream.end();
+        response.status(200).send('Log data saved successfully');
+    });
+
+    request.on('error', (err) => {
+        console.error('Request error:', err);
+        writeStream.end();
+        response.status(500).send('Error processing stream');
+    });
+
+    writeStream.on('error', (err) => {
+        console.error('Write stream error:', err);
+        response.status(500).send('Error writing to file');
+    });
+});
 
 app.listen(3000);
