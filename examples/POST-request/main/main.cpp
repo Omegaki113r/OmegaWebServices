@@ -11,11 +11,12 @@
 #include <esp_http_client.h>
 
 #include "OmegaWebServices/ESP32xx.hpp"
+#include "OmegaWebServices/Get.hpp"
 #include "OmegaWebServices/Post.hpp"
 #include "OmegaWebServices/Request.hpp"
 #include "OmegaWiFiController/WiFiController.hpp"
 
-#define URL "http://192.168.43.159:3000/uploads"
+#define URL "http://192.168.43.159:3000/log"
 #define URL_LEN std::strlen(URL)
 
 extern "C" void app_main(void)
@@ -31,7 +32,8 @@ extern "C" void app_main(void)
     }
 
     ::Omega::WiFiController::initialize(::Omega::WiFiController::Mode::eSTATION_MODE);
-    ::Omega::WiFiController::connect("GalaxyS9+71b0", "bqwk9667");
+    // ::Omega::WiFiController::connect("GalaxyS9+71b0", "bqwk9667");
+    ::Omega::WiFiController::connect("Xtronic", "Omegaki113r");
     if (const auto [state, node] = ::Omega::WiFiController::wait_for_ip(); eSUCCESS != state)
     {
         OMEGA_LOGE("Waiting for IP failed");
@@ -42,13 +44,17 @@ extern "C" void app_main(void)
     const auto chunked_callback = [&](const u8 *data, size_t data_length)
     {
         // OMEGA_LOGW("Chunk received with length: %d", data_length);
-        OMEGA_HEX_LOGI((void *)data, data_length);
+        // OMEGA_HEX_LOGI((void *)data, data_length);
     };
     auto [status, data] = ::Omega::WebServices::Request::POST(::Omega::WebServices::ESP32xx())
                               .url(URL)
-                              .header("Transfer-Encoding", "chunked")
-                              // .header("Content-Type", "application/octet-stream")
                               .perform();
+    if (eSUCCESS != status)
+    {
+        OMEGA_LOGE("Post request has failed");
+        return;
+    }
+
     OMEGA_LOGI("[%.1f MB] execution time: %.1fs",
                static_cast<float>(data.body_size) / (1000.0f * 1000.0f),
                (static_cast<float>(esp_timer_get_time()) - static_cast<float>(start_time)) / (1000.0f * 1000.0f));
