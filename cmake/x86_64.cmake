@@ -19,22 +19,34 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(OmegaUtilityDriver)
 
-FetchContent_Declare(
-  cpr 
-  GIT_REPOSITORY https://github.com/libcpr/cpr.git
-  )
-FetchContent_MakeAvailable(cpr)
-set(BUILD_SHARED_LIBS OFF CACHE BOOL "Build shared libraries" FORCE)
-set(CPR_BUILD_TESTS OFF CACHE BOOL "Disable tests" FORCE)  # Optional: disable tests to speed up the build
-set(CURL_DISABLE_LIBPSL ON CACHE BOOL "Disable libpsl in curl" FORCE)  # Disable libpsl
+# FetchContent_Declare(
+#   Poco
+#   GIT_REPOSITORY    https://github.com/pocoproject/poco.git
+#   GIT_TAG           origin/main
+# )
+# FetchContent_MakeAvailable(Poco)
 
-
-# Set the runtime library consistently for all targets
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MTd")  # Static runtime in debug mode
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")  # Static runtime in release mode
-
+# set(POCO_LIB_PATH ${PROJ_ROOT_DIR}/extra/libs/poco/lib)
+# set(POCO_LIB_HEADER_PATH 
+#   ${PROJ_ROOT_DIR}/extra/libs/poco/Foundation/include
+#   ${PROJ_ROOT_DIR}/extra/libs/poco/Net/include
+#   ${PROJ_ROOT_DIR}/extra/libs/poco/Encodings/include
+# )
 
 add_library(OmegaWebServices STATIC ${PROJ_SOURCES})
-target_include_directories(OmegaWebServices PUBLIC ${PROJ_HEADER_DIRS})
-target_link_libraries(OmegaWebServices OmegaUtilityDriver cpr::cpr)
-# target_link_libraries(OmegaWebServices PRIVATE cpr::cpr)
+# include_directories(${POCO_LIB_HEADER_PATH})
+target_include_directories(OmegaWebServices PUBLIC ${PROJ_HEADER_DIRS} 
+  # ${POCO_LIB_HEADER_PATH}
+)
+target_link_libraries(OmegaWebServices 
+  OmegaUtilityDriver 
+  # ${POCO_LIB_PATH}/PocoNet.lib 
+  # ${POCO_LIB_PATH}/PocoNetd.lib 
+  # ${POCO_LIB_PATH}/PocoFoundation.lib
+  # ${POCO_LIB_PATH}/PocoFoundationd.lib  
+  # ${POCO_LIB_PATH}/PocoUtil.lib
+  # ${POCO_LIB_PATH}/PocoUtild.lib  
+  # ${POCO_LIB_PATH}/PocoEncodings.lib
+  # ${POCO_LIB_PATH}/PocoEncodingsd.lib  
+)
+# target_compile_definitions(OmegaWebServices PUBLIC POCO_OS_FAMILY_WINDOWS)

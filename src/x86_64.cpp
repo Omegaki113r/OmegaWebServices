@@ -10,7 +10,7 @@
  * File Created: Tuesday, 11th March 2025 6:56:11 pm
  * Author: Omegaki113r (omegaki113r@gmail.com)
  * -----
- * Last Modified: Tuesday, 11th March 2025 10:09:52 pm
+ * Last Modified: Wednesday, 12th March 2025 1:55:40 am
  * Modified By: Omegaki113r (omegaki113r@gmail.com)
  * -----
  * Copyright <<projectCreationYear>> - 2025 0m3g4ki113r, Xtronic
@@ -21,7 +21,12 @@
  */
 #include <memory>
 
-#include <cpr/cpr.h>
+// #include <Poco/Exception.h>
+// #include <Poco/Net/HTMLForm.h>
+// #include <Poco/Net/HTTPClientSession.h>
+// #include <Poco/Net/HTTPRequest.h>
+// #include <Poco/Net/HTTPResponse.h>
+// #include <Poco/StreamCopier.h>
 
 #include "OmegaUtilityDriver/UtilityDriver.hpp"
 #include "OmegaWebServices/x86_64.hpp"
@@ -67,9 +72,18 @@ namespace Omega
     {
         Response x86_64::perform_get(const char *url, const Authentication &auth, const Header &header, std::function<void(const u8 *data, size_t data_length)> chunked_callback) noexcept
         {
-            cpr::Response r = cpr::Get(cpr::Url{url});
-            LOGI("%s", r.status_code);
+            // using namespace Poco::Net;
+            // HTTPClientSession s("www.somehost.com");
+            // // s.setProxy("localhost", srv.port());
+            // HTTPRequest request(HTTPRequest::HTTP_GET, "/large");
+            // HTMLForm form;
+            // form.add("entry1", "value1");
+            // form.prepareSubmit(request);
+            // s.sendRequest(request);
+            // HTTPResponse response;
+            // std::istream &rs = s.receiveResponse(response);
 
+            // Poco::StreamCopier::copyStream(rs, std::cout);
             return {eFAILED, {}};
         }
 
