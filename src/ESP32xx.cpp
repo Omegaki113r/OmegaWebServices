@@ -10,7 +10,7 @@
  * File Created: Friday, 21st February 2025 4:30:23 pm
  * Author: Omegaki113r (omegaki113r@gmail.com)
  * -----
- * Last Modified: Tuesday, 11th March 2025 7:12:17 am
+ * Last Modified: Tuesday, 11th March 2025 8:43:57 am
  * Modified By: Omegaki113r (omegaki113r@gmail.com)
  * -----
  * Copyright 2025 - 2025 0m3g4ki113r, Xtronic
@@ -389,7 +389,13 @@ namespace Omega
             }
 
             const auto content_length = esp_http_client_fetch_headers(http_handle);
-
+            int read_size = 0;
+            if (read_size = esp_http_client_read(http_handle, _string_builder.string, content_length); 0 > read_size)
+            {
+                LOGE("esp_http_client_read failed");
+                return {eFAILED, {}};
+            }
+            _string_builder.count = 0 > read_size ? 0 : read_size;
             if (const auto err = esp_http_client_close(http_handle); ESP_OK != err)
             {
                 LOGE("esp_http_client_close failed with %s", esp_err_to_name(err));
@@ -413,7 +419,7 @@ namespace Omega
                 UNUSED(std::memcpy(internal_buffer, _string_builder.string, _string_builder.count));
                 std::free(_string_builder.string);
             }
-            return {eSUCCESS, {static_cast<u16>(status), _response.m_header, {internal_buffer, CHeapDeleter()}, _string_builder.count}};
+            return {eSUCCESS, {static_cast<u16>(status), _response.m_header, {internal_buffer, CHeapDeleter()}, static_cast<size_t>(content_length)}};
         }
 
         Response ESP32xx::perform(Request::RequsetType type, const char *url, const Authentication &auth, const Header &header, std::function<void(const u8 *data, size_t data_length)> chunked_callback) noexcept

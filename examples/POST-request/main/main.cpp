@@ -55,13 +55,12 @@ extern "C" void app_main(void)
         return;
     }
 
-    OMEGA_LOGI("[%.1f MB] execution time: %.1fs",
-               static_cast<float>(data.body_size) / (1000.0f * 1000.0f),
+    OMEGA_LOGI("[%.1f MB | %.1fKB | %dB] execution time: %.1fs",
+               static_cast<float>(data.body_size) / (1000.0f * 1000.0f), static_cast<float>(data.body_size) / (1000.0f), data.body_size,
                (static_cast<float>(esp_timer_get_time()) - static_cast<float>(start_time)) / (1000.0f * 1000.0f));
     for (const auto &[key, value] : data.header)
     {
         OMEGA_LOGI("%s: %s", key, value);
     }
     OMEGA_HEX_LOGI(data.body, data.body_size);
-    OMEGA_LOGI("Request Status: %d", data.status_code);
 }
