@@ -10,7 +10,7 @@
  * File Created: Friday, 14th February 2025 8:30:47 pm
  * Author: Omegaki113r (omegaki113r@gmail.com)
  * -----
- * Last Modified: Tuesday, 11th March 2025 7:22:52 am
+ * Last Modified: Tuesday, 11th March 2025 9:11:40 am
  * Modified By: Omegaki113r (omegaki113r@gmail.com)
  * -----
  * Copyright 2025 - 2025 0m3g4ki113r, Xtronic
@@ -197,6 +197,18 @@ namespace Omega
                     else
                     {
                         return m_hardware_base.perform(Request::RequsetType::GET, m_host, m_port, m_path, m_authentication, m_header, chunked_callback);
+                    }
+                }
+
+                Response stream(std::function<void(const u8 *data, size_t *data_length)> chunked_callback) noexcept override
+                {
+                    if (0 < std::strlen(m_url))
+                    {
+                        return m_hardware_base.stream(Request::RequsetType::GET, m_url, m_authentication, m_header, chunked_callback);
+                    }
+                    else
+                    {
+                        return m_hardware_base.stream(Request::RequsetType::GET, m_host, m_port, m_path, m_authentication, m_header, chunked_callback);
                     }
                 }
             };
