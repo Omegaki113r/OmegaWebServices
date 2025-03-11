@@ -10,7 +10,7 @@
  * File Created: Monday, 3rd March 2025 2:29:14 am
  * Author: Omegaki113r (omegaki113r@gmail.com)
  * -----
- * Last Modified: Tuesday, 11th March 2025 9:34:15 am
+ * Last Modified: Tuesday, 11th March 2025 7:44:27 pm
  * Modified By: Omegaki113r (omegaki113r@gmail.com)
  * -----
  * Copyright 2025 - 2025 0m3g4ki113r, Xtronic
@@ -27,7 +27,6 @@
 #include "OmegaWebServices/RequestBase.hpp"
 #include "OmegaWebServices/Response.hpp"
 
-#include <sdkconfig.h>
 #if CONFIG_OMEGA_WEB_SERVICES_DEBUG
 #define LOGD(format, ...) OMEGA_LOGD(format, ##__VA_ARGS__)
 #define HEX_LOGD(buffer, length) OMEGA_HEX_LOGD(buffer, length)

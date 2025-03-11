@@ -1,0 +1,25 @@
+cmake_minimum_required(VERSION 3.16)
+
+set( WEB_SERVICES_PATH ../.. )
+# set( EXTRA_COMPONENT_DIRS ${WEB_SERVICES_PATH} )
+
+add_compile_definitions(CONFIG_OMEGA_LOGGING=1)
+# add_compile_definitions(CONFIG_OMEGA_WIFI_CONTROLLER_DEBUG=1)
+# add_compile_definitions(CONFIG_OMEGA_WIFI_CONTROLLER_INFO=1)
+# add_compile_definitions(CONFIG_OMEGA_WIFI_CONTROLLER_WARN=1)
+# add_compile_definitions(CONFIG_OMEGA_WIFI_CONTROLLER_ERROR=1)
+# add_compile_definitions(CONFIG_OMEGA_FILE_SYSTEM_CONTROLLER_DEBUG=1)
+# add_compile_definitions(CONFIG_OMEGA_FILE_SYSTEM_CONTROLLER_INFO=1)
+# add_compile_definitions(CONFIG_OMEGA_FILE_SYSTEM_CONTROLLER_WARN=1)
+# add_compile_definitions(CONFIG_OMEGA_FILE_SYSTEM_CONTROLLER_ERROR=1)
+add_compile_definitions(CONFIG_OMEGA_WEB_SERVICES_DEBUG=1)
+add_compile_definitions(CONFIG_OMEGA_WEB_SERVICES_INFO=1)
+add_compile_definitions(CONFIG_OMEGA_WEB_SERVICES_WARN=1)
+add_compile_definitions(CONFIG_OMEGA_WEB_SERVICES_ERROR=1)
+
+project(x86-64-GET-request CXX)
+set(CMAKE_CXX_STANDARD 17)
+add_executable(x86-64-GET-request main/main.cpp)
+
+add_subdirectory(${WEB_SERVICES_PATH} OmegaWebServices)
+target_link_libraries(x86-64-GET-request OmegaWebServices)

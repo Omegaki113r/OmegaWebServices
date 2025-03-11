@@ -28,7 +28,6 @@
 #include "OmegaUtilityDriver/UtilityDriver.hpp"
 #include "OmegaWebServices/Header.hpp"
 
-#include <sdkconfig.h>
 #if CONFIG_OMEGA_WEB_SERVICES_DEBUG
 #define LOGD(format, ...) OMEGA_LOGD(format, ##__VA_ARGS__)
 #define HEX_LOGD(buffer, length) OMEGA_HEX_LOGD(buffer, length)

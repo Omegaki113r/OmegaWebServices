@@ -1,26 +1,27 @@
 /**
- * @file ESP32xx.hpp
+ * @file x86_64.hpp
  * @author Omegaki113r
- * @date Friday, 21st February 2025 4:27:39 pm
- * @copyright Copyright 2025 - 2025 0m3g4ki113r, Xtronic
+ * @date Tuesday, 11th March 2025 6:55:05 pm
+ * @copyright Copyright <<projectCreationYear>> - 2025 0m3g4ki113r, Xtronic
  * */
 /*
  * Project: OmegaWebServices
- * File Name: ESP32xx.hpp
- * File Created: Friday, 21st February 2025 4:27:39 pm
+ * File Name: x86_64.hpp
+ * File Created: Tuesday, 11th March 2025 6:55:05 pm
  * Author: Omegaki113r (omegaki113r@gmail.com)
  * -----
- * Last Modified: Tuesday, 11th March 2025 7:44:58 pm
+ * Last Modified: Tuesday, 11th March 2025 8:33:56 pm
  * Modified By: Omegaki113r (omegaki113r@gmail.com)
  * -----
- * Copyright 2025 - 2025 0m3g4ki113r, Xtronic
+ * Copyright <<projectCreationYear>> - 2025 0m3g4ki113r, Xtronic
  * -----
  * HISTORY:
  * Date      	By	Comments
  * ----------	---	---------------------------------------------------------
  */
-
 #pragma once
+
+#include <functional>
 
 #include "OmegaUtilityDriver/UtilityDriver.hpp"
 #include "OmegaWebServices/Authentication.hpp"
@@ -64,18 +65,25 @@ namespace Omega
 {
     namespace WebServices
     {
-        class ESP32xx : public HardwareBase
+        class x86_64 : public HardwareBase
         {
-            OmegaStatus cleanup(esp_http_client_handle_t handle) noexcept;
             Response perform_get(const char *url, const Authentication &auth, const Header &header, std::function<void(const u8 *data, size_t data_length)> chunked_callback = nullptr) noexcept;
             Response perform_post(const char *url, const Authentication &auth, const Header &header, std::function<void(const u8 *data, size_t data_length)> chunked_callback = nullptr) noexcept;
             Response stream_post(const char *url, const Authentication &auth, const Header &header, std::function<void(u8 *data, size_t *data_length)> chunked_callback = nullptr) noexcept;
 
         public:
-            Response perform(Request::RequsetType type, const char *url, const Authentication &auth, const Header &header, std::function<void(const u8 *data, size_t data_length)> chunked_callback = nullptr) noexcept override;
-            Response perform(Request::RequsetType type, const char *host, u16 port, const char *path, const Authentication &auth, const Header &header, std::function<void(const u8 *data, size_t data_length)> chunked_callback = nullptr) noexcept override;
-            Response stream(Request::RequsetType type, const char *url, const Authentication &auth, const Header &header, std::function<void(u8 *data, size_t *data_length)> chunked_callback) noexcept override;
-            Response stream(Request::RequsetType type, const char *host, u16 port, const char *path, const Authentication &auth, const Header &header, std::function<void(u8 *data, size_t *data_length)> chunked_callback) noexcept override;
+            Response perform(Request::RequsetType type,
+                             const char *url, const Authentication &auth, const Header &header,
+                             std::function<void(const u8 *data, size_t data_length)> chunked_callback = nullptr) noexcept override;
+            Response perform(Request::RequsetType type,
+                             const char *host, u16 port, const char *path, const Authentication &auth, const Header &header,
+                             std::function<void(const u8 *data, size_t data_length)> chunked_callback = nullptr) noexcept override;
+            Response stream(Request::RequsetType type,
+                            const char *url, const Authentication &auth, const Header &header,
+                            std::function<void(u8 *data, size_t *data_length)> chunked_callback) noexcept override;
+            Response stream(Request::RequsetType type,
+                            const char *host, u16 port, const char *path, const Authentication &auth, const Header &header,
+                            std::function<void(u8 *data, size_t *data_length)> chunked_callback) noexcept override;
         };
     } // namespace WebServices
 } // namespace Omega

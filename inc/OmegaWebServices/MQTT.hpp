@@ -10,7 +10,7 @@
  * File Created: Sunday, 9th February 2025 7:00:28 pm
  * Author: Omegaki113r (omegaki113r@gmail.com)
  * -----
- * Last Modified: Monday, 10th February 2025 3:48:29 am
+ * Last Modified: Tuesday, 11th March 2025 7:44:22 pm
  * Modified By: Omegaki113r (omegaki113r@gmail.com)
  * -----
  * Copyright 2025 - 2025 0m3g4ki113r, Xtronic
@@ -31,7 +31,6 @@
 #include "OmegaUtilityDriver/UtilityDriver.hpp"
 #include "OmegaWebServices/Authentication.hpp"
 
-#include <sdkconfig.h>
 #if CONFIG_OMEGA_WEB_SERVICES_DEBUG
 #define LOGD(format, ...) OMEGA_LOGD(format, ##__VA_ARGS__)
 #define HEX_LOGD(buffer, length) OMEGA_HEX_LOGD(buffer, length)
