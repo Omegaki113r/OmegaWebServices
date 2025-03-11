@@ -10,7 +10,7 @@
  * File Created: Friday, 21st February 2025 4:30:23 pm
  * Author: Omegaki113r (omegaki113r@gmail.com)
  * -----
- * Last Modified: Monday, 10th March 2025 12:54:27 am
+ * Last Modified: Tuesday, 11th March 2025 6:34:38 am
  * Modified By: Omegaki113r (omegaki113r@gmail.com)
  * -----
  * Copyright 2025 - 2025 0m3g4ki113r, Xtronic
@@ -290,48 +290,6 @@ namespace Omega
                 std::free(_string_builder.items);
             }
             return {eSUCCESS, {static_cast<u16>(status), _response.m_header, {internal_buffer, CHeapDeleter()}, _string_builder.count}};
-            // for (const auto &[key, value] : _response.m_header)
-            // {
-            //     LOGD("%s : %s", key, value);
-            // }
-            // // if (nullptr != chunked_callback)
-            // // {
-            // //     const auto read_length = esp_http_client_read_read();
-            // // }
-
-            // // HEX_LOGD(buffer, read_length);
-            // return {eFAILED, {}};
-            // // if ()
-            // // {
-            // // }
-
-            // if (const auto err = esp_http_client_perform(http_handle); ESP_OK != err)
-            // {
-            //     LOGE("esp_http_client_perform failed with %s", esp_err_to_name(err));
-            //     cleanup(http_handle);
-            //     return {eFAILED, {}};
-            // }
-            // const auto status = esp_http_client_get_status_code(http_handle);
-            // [[maybe_unused]] const auto content_size = esp_http_client_get_content_length(http_handle);
-            // LOGD("Status: %d | Content size: %lld", status, content_size);
-            // if (const auto err = esp_http_client_cleanup(http_handle); ESP_OK != err)
-            // {
-            //     LOGE("esp_http_client_cleanup failed with: %s", esp_err_to_name(err));
-            //     return {eFAILED, {}};
-            // }
-            // u8 *internal_buffer = nullptr;
-            // if (nullptr == chunked_callback)
-            // {
-            //     internal_buffer = (u8 *)calloc(_response.m_string.count + 1, sizeof(u8));
-            //     if (nullptr == internal_buffer)
-            //     {
-            //         LOGE("allocating buffer failed");
-            //         return {eFAILED, {}};
-            //     }
-            //     UNUSED(std::memcpy(internal_buffer, _response.m_string.items, _response.m_string.count));
-            //     free(_response.m_string.items);
-            // }
-            // return {eSUCCESS, {static_cast<u16>(status), _response.m_header, {internal_buffer, CHeapDeleter()}, _response.m_string.count}};
         }
 
         Response ESP32xx::perform_post(const char *url, const Authentication &auth, const Header &header, std::function<void(const u8 *data, size_t data_length)> chunked_callback)
@@ -408,9 +366,6 @@ namespace Omega
             };
             _Response _response{chunked_callback};
             esp_http_client_config_t config{.url = url, .username = auth.username, .password = auth.password, .method = HTTP_METHOD_POST, .event_handler = http_handler, .user_data = &_response};
-            // config.timeout_ms = 30 * 1000;
-            // config.buffer_size = 2 * 4096;
-            // config.buffer_size_tx = 2 * 4096;
             const esp_http_client_handle_t http_handle = esp_http_client_init(&config);
             if (nullptr == http_handle)
             {
@@ -425,19 +380,15 @@ namespace Omega
                     return {eFAILED, {}};
                 }
             }
-
-            // esp_http_client_set_header(http_handle, "Transfer-Encoding", "chunked");
-            // esp_http_client_set_header(http_handle, "Content-Type", "application/octet-stream");
-
             const size_t file_size = 4 * 1024 * 1024;
-            if (const auto err = esp_http_client_open(http_handle, file_size); ESP_OK != err)
+            if (const auto err = esp_http_client_open(http_handle, -1); ESP_OK != err)
             {
                 LOGE("esp_http_client_open failed with %s", esp_err_to_name(err));
                 return {eFAILED, {}};
             }
             constexpr size_t buffer_length = 1 * 1024;
             String _string_builder{};
-            _string_builder.items = (u8 *)std::calloc(buffer_length, sizeof(u8));
+            _string_builder.items = (u8 *)std::calloc(buffer_length + 1, sizeof(u8));
             if (nullptr == _string_builder.items)
             {
                 LOGE("buffer allocation failed");
@@ -447,23 +398,40 @@ namespace Omega
             _string_builder.capacity = buffer_length;
             int read_length = 0;
             UNUSED(std::memset(_string_builder.items, 'h', buffer_length));
+
+            char *chunk_buffer = (char *)std::calloc(100 + buffer_length + 2, sizeof(char));
+            if (nullptr == chunk_buffer)
+            {
+                LOGE("Buffer allocation failed");
+                return {eFAILED, {}};
+            }
+
             for (size_t idx = 0; idx < file_size;)
             {
-                if (const auto written_amount = esp_http_client_write(http_handle, (const char *)_string_builder.items, buffer_length); 0 > written_amount)
+                char chunk_size_header[100]{0};
+                size_t written_size = 0;
+
+                if (written_size = snprintf(chunk_buffer, 100 + buffer_length + 2, "%x\r\n%s\r\n", buffer_length, _string_builder.items); 0 > written_size)
+                {
+                    LOGE("snprintf failed");
+                    return {eFAILED, {}};
+                }
+
+                if (const auto written_amount = esp_http_client_write(http_handle, chunk_buffer, std::strlen(chunk_buffer)); 0 > written_amount)
                 {
                     LOGE("esp_http_client_write failed. %d %d", written_amount, idx);
                     return {eFAILED, {}};
                 }
                 idx += buffer_length;
             }
-            // if (const auto written_amount = esp_http_client_write(http_handle, nullptr, 0); 0 > written_amount)
-            // {
-            //     LOGE("esp_http_client_write failed");
-            //     return {eFAILED, {}};
-            // }
+            static constexpr char end_buffer[] = "0\r\n\r\n";
+            if (const auto written_amount = esp_http_client_write(http_handle, end_buffer, std::strlen(end_buffer)); 0 > written_amount)
+            {
+                LOGE("esp_http_client_write failed");
+                return {eFAILED, {}};
+            }
 
             const auto content_length = esp_http_client_fetch_headers(http_handle);
-            // LOGE("Content length: %lld", content_length);
 
             if (const auto err = esp_http_client_close(http_handle); ESP_OK != err)
             {
