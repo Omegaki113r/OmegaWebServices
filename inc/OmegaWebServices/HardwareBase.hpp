@@ -2,7 +2,7 @@
  * @file HardwareBase.hpp
  * @author Omegaki113r
  * @date Friday, 21st February 2025 4:31:43 pm
- * @copyright Copyright <<projectCreationYear>> - 2025 0m3g4ki113r, Xtronic
+ * @copyright Copyright 2025 - 2025 0m3g4ki113r, Xtronic
  * */
 /*
  * Project: OmegaWebServices
@@ -10,10 +10,10 @@
  * File Created: Friday, 21st February 2025 4:31:43 pm
  * Author: Omegaki113r (omegaki113r@gmail.com)
  * -----
- * Last Modified: Saturday, 8th March 2025 3:43:55 am
+ * Last Modified: Tuesday, 11th March 2025 7:16:28 am
  * Modified By: Omegaki113r (omegaki113r@gmail.com)
  * -----
- * Copyright <<projectCreationYear>> - 2025 0m3g4ki113r, Xtronic
+ * Copyright 2025 - 2025 0m3g4ki113r, Xtronic
  * -----
  * HISTORY:
  * Date      	By	Comments

@@ -2,7 +2,7 @@
  * @file Get.hpp
  * @author Omegaki113r
  * @date Friday, 14th February 2025 8:30:47 pm
- * @copyright Copyright <<projectCreationYear>> - 2025 0m3g4ki113r, Xtronic
+ * @copyright Copyright 2025 - 2025 0m3g4ki113r, Xtronic
  * */
 /*
  * Project: OmegaWebServices
@@ -10,10 +10,10 @@
  * File Created: Friday, 14th February 2025 8:30:47 pm
  * Author: Omegaki113r (omegaki113r@gmail.com)
  * -----
- * Last Modified: Saturday, 8th March 2025 3:31:20 am
+ * Last Modified: Tuesday, 11th March 2025 7:22:52 am
  * Modified By: Omegaki113r (omegaki113r@gmail.com)
  * -----
- * Copyright <<projectCreationYear>> - 2025 0m3g4ki113r, Xtronic
+ * Copyright 2025 - 2025 0m3g4ki113r, Xtronic
  * -----
  * HISTORY:
  * Date      	By	Comments
@@ -101,12 +101,12 @@ namespace Omega
                 void set_url(const char *url) noexcept override
                 {
                     if (url)
-                        memcpy(m_url, url, std::strlen(url));
+                        std::memcpy(m_url, url, std::strlen(url));
                 }
                 GET &url(const char *url) noexcept override
                 {
                     if (url)
-                        memcpy(m_url, url, std::strlen(url));
+                        std::memcpy(m_url, url, std::strlen(url));
                     return *this;
                 }
 
@@ -117,12 +117,12 @@ namespace Omega
                 void set_host(const char *host) noexcept override
                 {
                     if (host)
-                        memcpy(m_host, host, std::strlen(host));
+                        std::memcpy(m_host, host, std::strlen(host));
                 }
                 GET &host(const char *host) noexcept override
                 {
                     if (host)
-                        memcpy(m_host, host, std::strlen(host));
+                        std::memcpy(m_host, host, std::strlen(host));
                     return *this;
                 }
 
@@ -147,12 +147,12 @@ namespace Omega
                 void set_path(const char *path) noexcept override
                 {
                     if (nullptr != path)
-                        memcpy(m_path, path, std::strlen(path));
+                        std::memcpy(m_path, path, std::strlen(path));
                 }
                 GET &path(const char *path) noexcept override
                 {
                     if (nullptr != path)
-                        memcpy(m_path, path, std::strlen(path));
+                        std::memcpy(m_path, path, std::strlen(path));
                     return *this;
                 }
 

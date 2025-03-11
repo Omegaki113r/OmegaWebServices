@@ -69,7 +69,8 @@
         "cinttypes": "cpp",
         "typeinfo": "cpp",
         "variant": "cpp",
-        "expected": "cpp"
+        "expected": "cpp",
+        "text_encoding": "cpp"
     },
     "idf.openOcdConfigs": [
         "interface/ftdi/esp32_devkitj_v1.cfg",

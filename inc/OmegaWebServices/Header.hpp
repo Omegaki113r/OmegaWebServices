@@ -10,7 +10,7 @@
  * File Created: Wednesday, 8th January 2025 12:36:31 am
  * Author: Omegaki113r (omegaki113r@gmail.com)
  * -----
- * Last Modified: Friday, 7th March 2025 11:48:55 pm
+ * Last Modified: Tuesday, 11th March 2025 7:20:09 am
  * Modified By: Omegaki113r (omegaki113r@gmail.com)
  * -----
  * Copyright 2025 - 2025 0m3g4ki113r, Xtronic
@@ -71,26 +71,7 @@ namespace Omega
             Arena arena{};
 
         public:
-            inline void add_header(const char *in_key, const char *in_value) noexcept
-            {
-                if (nullptr == in_key || nullptr == in_value)
-                {
-                    return;
-                }
-                if (0 == std::strlen(in_key) || 0 == std::strlen(in_value))
-                {
-                    return;
-                }
-                const size_t key_length = std::strlen(in_key);
-                char *key = static_cast<char *>(arena_alloc(&arena, key_length + 1));
-                UNUSED(std::memcpy(key, in_key, key_length));
-                key[key_length] = '\0';
-                const size_t value_length = std::strlen(in_value);
-                char *value = static_cast<char *>(arena_alloc(&arena, value_length + 1));
-                UNUSED(std::memcpy(value, in_value, value_length));
-                value[value_length] = '\0';
-                header[key] = value;
-            }
+            void add_header(const char *in_key, const char *in_value) noexcept;
             const char *get_value(const char *in_key) noexcept { return header[in_key]; }
             auto begin() const noexcept { return header.begin(); }
             auto end() const noexcept { return header.end(); }
@@ -137,3 +118,5 @@ namespace Omega
 #undef LOGE
 #undef HEX_LOGE
 #endif
+
+#undef ARENA_IMPLEMENTATION

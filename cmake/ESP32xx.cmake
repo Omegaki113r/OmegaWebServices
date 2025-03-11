@@ -1,5 +1,5 @@
 set(PROJ_HEADER_DIRS        ${PROJ_ROOT_DIR}/inc)
-set(PROJ_SOURCES            ${PROJ_ROOT_DIR}/src/WebServices.cpp)
+set(PROJ_SOURCES            ${PROJ_ROOT_DIR}/src/WebServices.cpp  ${PROJ_ROOT_DIR}/src/Header.cpp)
 set(PROJ_DEPENDENCIES       OmegaUtilityDriver)
 
 # if(CONFIG_OMEGA_ENABLE_REQUESTS)
