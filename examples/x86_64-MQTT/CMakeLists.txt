@@ -17,9 +17,9 @@ add_compile_definitions(CONFIG_OMEGA_WEB_SERVICES_INFO=1)
 add_compile_definitions(CONFIG_OMEGA_WEB_SERVICES_WARN=1)
 add_compile_definitions(CONFIG_OMEGA_WEB_SERVICES_ERROR=1)
 
-project(x86-64-GET-request CXX)
+project(x86-MQTT CXX)
 set(CMAKE_CXX_STANDARD 17)
-add_executable(x86-64-GET-request main/main.cpp)
+add_executable(x86-64-MQTT main/main.cpp)
 
 add_subdirectory(${WEB_SERVICES_PATH} OmegaWebServices)
-target_link_libraries(x86-64-GET-request OmegaWebServices)
+target_link_libraries(x86-64-MQTT OmegaWebServices)

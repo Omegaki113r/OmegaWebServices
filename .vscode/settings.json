@@ -86,6 +86,11 @@
         "span": "cpp",
         "sstream": "cpp",
         "cinttypes": "cpp",
-        "esp_debug_helpers.h": "c"
+        "esp_debug_helpers.h": "c",
+        "codecvt": "cpp",
+        "csignal": "cpp",
+        "forward_list": "cpp",
+        "unordered_set": "cpp",
+        "cfenv": "cpp"
     }
 }

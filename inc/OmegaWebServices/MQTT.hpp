@@ -10,7 +10,7 @@
  * File Created: Sunday, 9th February 2025 7:00:28 pm
  * Author: Omegaki113r (omegaki113r@gmail.com)
  * -----
- * Last Modified: Tuesday, 11th March 2025 7:44:22 pm
+ * Last Modified: Friday, 14th March 2025 6:50:20 am
  * Modified By: Omegaki113r (omegaki113r@gmail.com)
  * -----
  * Copyright 2025 - 2025 0m3g4ki113r, Xtronic
@@ -26,7 +26,7 @@
 #include <optional>
 #include <variant>
 
-#include <mqtt_client.h>
+// #include <mqtt_client.h>
 
 #include "OmegaUtilityDriver/UtilityDriver.hpp"
 #include "OmegaWebServices/Authentication.hpp"
@@ -121,36 +121,39 @@ namespace Omega
                 }
             };
 
+            template <typename T>
             class Client
             {
             private:
                 State m_state = State::eDISCONNECTED;
-                std::variant<BrokerURI, BrokerInfo> m_connection_info;
-                std::optional<Authentication> m_authentication;
-                esp_mqtt_client_handle_t m_handle;
+                std::variant<std::monostate, BrokerURI, BrokerInfo> m_connection_info;
+                Authentication m_authentication;
+                // esp_mqtt_client_handle_t m_handle;
                 std::function<void(void)> m_on_connected;
                 std::function<void(const u8 *, size_t)> m_on_data;
                 std::function<void(void)> m_on_disconnected;
+                T m_hardware_base;
 
             public:
-                constexpr Client(const char *uri) : m_connection_info(BrokerURI{uri}) {}
-                constexpr Client(const char *host, u16 port) : m_connection_info(BrokerInfo{host, port}) {}
-                constexpr Client &url(const char *in_uri)
+                Client(T hardware_base) : m_hardware_base(hardware_base) {}
+                Client(T hardware_base, const char *uri) : m_hardware_base(hardware_base), m_connection_info(BrokerURI{uri}) {}
+                Client(T hardware_base, const char *host, u16 port) : m_hardware_base(hardware_base), m_connection_info(BrokerInfo{host, port}) {}
+                Client &url(const char *in_uri)
                 {
                     m_connection_info = BrokerURI{in_uri};
                     return *this;
                 }
-                constexpr Client &host(const char *in_host, u16 in_port)
+                Client &host(const char *in_host, u16 in_port)
                 {
                     m_connection_info = BrokerInfo{in_host, in_port};
                     return *this;
                 }
-                constexpr Client &authentication(const Authentication &in_authentication)
+                Client &authentication(const Authentication &in_authentication)
                 {
                     m_authentication = in_authentication;
                     return *this;
                 }
-                constexpr Client &authentication(const char *in_username, const char *in_password)
+                Client &authentication(const char *in_username, const char *in_password)
                 {
                     if (nullptr == in_username || 0 == std::strlen(in_username))
                     {
@@ -166,17 +169,17 @@ namespace Omega
                     return *this;
                 }
 
-                constexpr Client &on_connected(std::function<void(void)> connected_callback)
+                Client &on_connected(std::function<void(void)> connected_callback)
                 {
                     m_on_connected = connected_callback;
                     return *this;
                 }
-                constexpr Client &on_data(std::function<void(const u8 *, size_t)> data_callback)
+                Client &on_data(std::function<void(const u8 *, size_t)> data_callback)
                 {
                     m_on_data = data_callback;
                     return *this;
                 }
-                constexpr Client &on_disconnected(std::function<void(void)> disconnected_callback)
+                Client &on_disconnected(std::function<void(void)> disconnected_callback)
                 {
                     m_on_disconnected = disconnected_callback;
                     return *this;
@@ -185,11 +188,30 @@ namespace Omega
                 void add_on_connected_handler(std::function<void(void)> connected_callback) noexcept { m_on_connected = connected_callback; }
                 void add_on_data_handler(std::function<void(const u8 *, size_t)> data_callback) noexcept { m_on_data = data_callback; }
                 void add_on_disconnected_handler(std::function<void(void)> disconnected_callback) noexcept { m_on_disconnected = disconnected_callback; }
-                OmegaStatus connect() noexcept;
-                State is_connected() const noexcept;
-                void publish(const char *topic, const char *data, size_t data_length, u8 qos = 0, bool retain = false) noexcept;
+                OmegaStatus connect() noexcept
+                {
+                    if (std::holds_alternative<std::monostate>(m_connection_info))
+                    {
+                        LOGE("connection parameters are uninitialized");
+                        return eFAILED;
+                    }
+                    if (std::holds_alternative<BrokerURI>(m_connection_info))
+                    {
+                        const auto connection_info = std::get<BrokerURI>(m_connection_info);
+                        return m_hardware_base.connect_mqtt(connection_info.m_uri, m_authentication, m_on_connected, m_on_data, m_on_disconnected);
+                    }
+                    if (std::holds_alternative<BrokerInfo>(m_connection_info))
+                    {
+                        const auto connection_info = std::get<BrokerInfo>(m_connection_info);
+                        return m_hardware_base.connect_mqtt(connection_info.m_host, connection_info.m_port, m_authentication, m_on_connected, m_on_data, m_on_disconnected);
+                    }
+                    return eFAILED;
+                }
+                 State is_connected() const noexcept { return State::eDISCONNECTED; }
+                 void publish(const char *topic, const char *data, size_t data_length, u8 qos = 0, bool retain = false) noexcept {}
+                OmegaStatus disconnect() noexcept { return m_hardware_base.disconnect_mqtt(m_on_disconnected); }
 
-                ~Client();
+                ~Client() {}
             };
         } // namespace MQTT
     } // namespace WebServices

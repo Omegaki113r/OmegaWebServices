@@ -10,7 +10,7 @@
  * File Created: Tuesday, 11th March 2025 6:56:11 pm
  * Author: Omegaki113r (omegaki113r@gmail.com)
  * -----
- * Last Modified: Wednesday, 12th March 2025 1:55:40 am
+ * Last Modified: Friday, 14th March 2025 6:20:25 am
  * Modified By: Omegaki113r (omegaki113r@gmail.com)
  * -----
  * Copyright <<projectCreationYear>> - 2025 0m3g4ki113r, Xtronic
@@ -19,6 +19,7 @@
  * Date      	By	Comments
  * ----------	---	---------------------------------------------------------
  */
+#include <functional>
 #include <memory>
 
 // #include <Poco/Exception.h>
@@ -27,6 +28,8 @@
 // #include <Poco/Net/HTTPRequest.h>
 // #include <Poco/Net/HTTPResponse.h>
 // #include <Poco/StreamCopier.h>
+
+#include <mqtt/async_client.h>
 
 #include "OmegaUtilityDriver/UtilityDriver.hpp"
 #include "OmegaWebServices/x86_64.hpp"
@@ -134,6 +137,81 @@ namespace Omega
         {
             LOGE("NOT IMPLEMENTED");
             return {eFAILED, {}};
+        }
+
+        class callback : public virtual mqtt::callback
+        {
+
+        public:
+            std::function<void(void)> m_on_connected;
+            std::function<void(const u8 *, size_t)> m_on_data;
+            std::function<void(void)> m_on_disconnected;
+
+            void set_callback(std::function<void(void)> on_connected, std::function<void(const u8 *, size_t)> on_data, std::function<void(void)> on_disconnected) {
+                m_on_connected = on_connected; 
+                m_on_data = on_data;  
+                m_on_disconnected = on_disconnected;
+            }
+
+            void connected(const std::string &cause) override
+            {
+                LOGD("Connected: %s", cause.c_str());
+                m_on_connected();
+            }
+
+            void message_arrived(mqtt::const_message_ptr msg) override
+            {
+                LOGD("Received: %s: %s", msg->get_topic(), msg->get_payload_str());
+            }
+
+            void connection_lost(const std::string &cause) override
+            {
+                LOGD("Disconnected: %s", cause.c_str());
+                m_on_disconnected();
+            }
+        };
+
+        const std::string SERVER_ADDRESS{"192.168.43.159:1883"};
+        const std::string CLIENT_ID{"paho_cpp_client"};
+        const std::string TOPIC{"test/topic"};
+
+        mqtt::async_client client(SERVER_ADDRESS, CLIENT_ID);
+        mqtt::connect_options connOpts;
+       callback cb;
+
+        OmegaStatus x86_64::connect_mqtt(const char *url, const Authentication &auth, std::function<void(void)> on_connected, std::function<void(const u8 *, size_t)> on_data, std::function<void(void)> on_disconnected) noexcept
+        {
+            cb.set_callback(on_connected, on_data, on_disconnected);
+            client.set_callback(cb);
+            connOpts.set_keep_alive_interval(20);
+            connOpts.set_clean_session(true);
+            try
+            {
+                client.connect(connOpts)->wait();
+            //     std::cout << "Connecting to " << SERVER_ADDRESS << "..." << std::endl;
+            //     std::cout << "Subscribing to " << TOPIC << "..." << std::endl;
+            //     client.subscribe(TOPIC, 1)->wait();
+            //     std::cout << "Publishing message..." << std::endl;
+            //     client.publish(TOPIC, "Hello from Paho C++!", 1, false)->wait();
+            //     std::this_thread::sleep_for(std::chrono::seconds(10));
+            //     std::cout << "Disconnecting..." << std::endl;
+            //     client.disconnect()->wait();
+            }
+            catch (const mqtt::exception &exc)
+            {
+                std::cerr << "Error: " << exc.what() << std::endl;
+                return eFAILED;
+            }
+            return eSUCCESS;
+        }
+
+        OmegaStatus x86_64::connect_mqtt(const char *host, u16 port, const Authentication &auth, std::function<void(void)> on_connected, std::function<void(const u8 *, size_t)> on_data, std::function<void(void)> on_disconnected) noexcept { return eFAILED; }
+
+        OmegaStatus x86_64::disconnect_mqtt(std::function<void(void)> on_disconnected) noexcept
+        {
+            client.disconnect(0);
+            on_disconnected();
+            return eSUCCESS;
         }
     } // namespace WebServices
 } // namespace Omega

@@ -10,7 +10,7 @@
  * File Created: Tuesday, 11th March 2025 6:55:05 pm
  * Author: Omegaki113r (omegaki113r@gmail.com)
  * -----
- * Last Modified: Tuesday, 11th March 2025 8:33:56 pm
+ * Last Modified: Friday, 14th March 2025 6:50:32 am
  * Modified By: Omegaki113r (omegaki113r@gmail.com)
  * -----
  * Copyright <<projectCreationYear>> - 2025 0m3g4ki113r, Xtronic
@@ -84,6 +84,10 @@ namespace Omega
             Response stream(Request::RequsetType type,
                             const char *host, u16 port, const char *path, const Authentication &auth, const Header &header,
                             std::function<void(u8 *data, size_t *data_length)> chunked_callback) noexcept override;
+
+            OmegaStatus connect_mqtt(const char *url, const Authentication &auth, std::function<void(void)> on_connected, std::function<void(const u8 *, size_t)> on_data, std::function<void(void)> on_disconnected) noexcept;
+            OmegaStatus connect_mqtt(const char *host, u16 port, const Authentication &auth, std::function<void(void)> on_connected, std::function<void(const u8 *, size_t)> on_data, std::function<void(void)> on_disconnected) noexcept;
+            OmegaStatus disconnect_mqtt(std::function<void(void)> on_disconnected) noexcept;
         };
     } // namespace WebServices
 } // namespace Omega
