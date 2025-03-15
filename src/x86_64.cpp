@@ -211,12 +211,10 @@ namespace Omega
             return eSUCCESS;
         }
 
-        OmegaStatus x86_64::connect_mqtt(const char *host, u16 port, const Authentication &auth, const char* client_id,std::function<void(void)> on_connected, std::function<void(const u8 *, size_t)> on_data, std::function<void(void)> on_disconnected) noexcept { return eFAILED; }
-
-        OmegaStatus x86_64::subscribe_mqtt(const char* topic, u8 qos) noexcept
+        OmegaStatus x86_64::publish_mqtt(const char *topic, const u8 *data, size_t data_length, u8 qos) noexcept
         {
-            const auto state = client.subscribe(topic, qos);
-            std::cout << state << std::endl;
+            if (const auto err = MQTTClient_publish(std::get<MQTTClient>(m_connection), topic, data_length, data, qos, false, nullptr);MQTTCLIENT_SUCCESS != err) {
+                LOGE("MQTTClient_publish failed with: %s", MQTTClient_strerror(err));
             return eFAILED;
         }
 
