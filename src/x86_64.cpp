@@ -185,10 +185,10 @@ namespace Omega
         mqtt::connect_options connOpts;
         callback cb;
 
-        OmegaStatus x86_64::connect_mqtt(const char *url, const Authentication &auth, std::function<void(void)> on_connected, std::function<void(const u8 *, size_t)> on_data, std::function<void(void)> on_disconnected) noexcept
+        OmegaStatus x86_64::connect_mqtt(const char *url, const Authentication &auth,const char* client_id, std::function<void(void)> on_connected, std::function<void(const u8 *, size_t)> on_data, std::function<void(void)> on_disconnected) noexcept
         {
-            cb.set_callback(on_connected, on_data, on_disconnected);
             client.set_callback(cb);
+            cb.set_callback(on_connected, on_data, on_disconnected);
             connOpts.set_keep_alive_interval(20);
             connOpts.set_clean_session(true);
             try
@@ -211,7 +211,7 @@ namespace Omega
             return eSUCCESS;
         }
 
-        OmegaStatus x86_64::connect_mqtt(const char *host, u16 port, const Authentication &auth, std::function<void(void)> on_connected, std::function<void(const u8 *, size_t)> on_data, std::function<void(void)> on_disconnected) noexcept { return eFAILED; }
+        OmegaStatus x86_64::connect_mqtt(const char *host, u16 port, const Authentication &auth, const char* client_id,std::function<void(void)> on_connected, std::function<void(const u8 *, size_t)> on_data, std::function<void(void)> on_disconnected) noexcept { return eFAILED; }
 
         OmegaStatus x86_64::subscribe_mqtt(const char* topic, u8 qos) noexcept
         {

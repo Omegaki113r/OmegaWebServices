@@ -10,7 +10,7 @@
  * File Created: Sunday, 9th February 2025 7:00:28 pm
  * Author: Omegaki113r (omegaki113r@gmail.com)
  * -----
- * Last Modified: Saturday, 15th March 2025 5:51:58 am
+ * Last Modified: Saturday, 15th March 2025 6:44:54 am
  * Modified By: Omegaki113r (omegaki113r@gmail.com)
  * -----
  * Copyright 2025 - 2025 0m3g4ki113r, Xtronic
@@ -128,6 +128,7 @@ namespace Omega
                 State m_state = State::eDISCONNECTED;
                 std::variant<std::monostate, BrokerURI, BrokerInfo> m_connection_info;
                 Authentication m_authentication;
+                char m_client_id[100]{0};
                 // esp_mqtt_client_handle_t m_handle;
                 std::function<void(void)> m_on_connected;
                 std::function<void(const u8 *, size_t)> m_on_data;
@@ -138,22 +139,22 @@ namespace Omega
                 Client(T hardware_base) : m_hardware_base(hardware_base) {}
                 Client(T hardware_base, const char *uri) : m_hardware_base(hardware_base), m_connection_info(BrokerURI{uri}) {}
                 Client(T hardware_base, const char *host, u16 port) : m_hardware_base(hardware_base), m_connection_info(BrokerInfo{host, port}) {}
-                Client &url(const char *in_uri)
+                Client &url(const char *in_uri) noexcept
                 {
                     m_connection_info = BrokerURI{in_uri};
                     return *this;
                 }
-                Client &host(const char *in_host, u16 in_port)
+                Client &host(const char *in_host, u16 in_port) noexcept
                 {
                     m_connection_info = BrokerInfo{in_host, in_port};
                     return *this;
                 }
-                Client &authentication(const Authentication &in_authentication)
+                Client &authentication(const Authentication &in_authentication) noexcept
                 {
                     m_authentication = in_authentication;
                     return *this;
                 }
-                Client &authentication(const char *in_username, const char *in_password)
+                Client &authentication(const char *in_username, const char *in_password) noexcept
                 {
                     if (nullptr == in_username || 0 == std::strlen(in_username))
                     {
@@ -168,18 +169,26 @@ namespace Omega
                     m_authentication = {in_username, in_password};
                     return *this;
                 }
-
-                Client &on_connected(std::function<void(void)> connected_callback)
+                Client &client_id(const char *client_id) noexcept
+                {
+                    const auto client_id_length = std::strlen(client_id);
+                    if (sizeof(m_client_id) > client_id_length)
+                    {
+                        UNUSED(std::memcpy(m_client_id, client_id, client_id_length));
+                    }
+                    return *this;
+                }
+                Client &on_connected(std::function<void(void)> connected_callback) noexcept
                 {
                     m_on_connected = connected_callback;
                     return *this;
                 }
-                Client &on_data(std::function<void(const u8 *, size_t)> data_callback)
+                Client &on_data(std::function<void(const u8 *, size_t)> data_callback) noexcept
                 {
                     m_on_data = data_callback;
                     return *this;
                 }
-                Client &on_disconnected(std::function<void(void)> disconnected_callback)
+                Client &on_disconnected(std::function<void(void)> disconnected_callback) noexcept
                 {
                     m_on_disconnected = disconnected_callback;
                     return *this;
@@ -198,12 +207,12 @@ namespace Omega
                     if (std::holds_alternative<BrokerURI>(m_connection_info))
                     {
                         const auto connection_info = std::get<BrokerURI>(m_connection_info);
-                        return m_hardware_base.connect_mqtt(connection_info.m_uri, m_authentication, m_on_connected, m_on_data, m_on_disconnected);
+                        return m_hardware_base.connect_mqtt(connection_info.m_uri, m_authentication, m_client_id ,m_on_connected, m_on_data, m_on_disconnected);
                     }
                     if (std::holds_alternative<BrokerInfo>(m_connection_info))
                     {
                         const auto connection_info = std::get<BrokerInfo>(m_connection_info);
-                        return m_hardware_base.connect_mqtt(connection_info.m_host, connection_info.m_port, m_authentication, m_on_connected, m_on_data, m_on_disconnected);
+                        return m_hardware_base.connect_mqtt(connection_info.m_host, connection_info.m_port, m_authentication, m_client_id, m_on_connected, m_on_data, m_on_disconnected);
                     }
                     return eFAILED;
                 }
@@ -213,9 +222,9 @@ namespace Omega
                     m_hardware_base.subscribe_mqtt(topic, qos);
                     return eFAILED;
                 }
-                void publish(const char *topic, const u8 *data, size_t data_length, u8 qos = 0, bool retain = false) noexcept 
+                void publish(const char *topic, const u8 *data, size_t data_length, u8 qos = 0, bool retain = false) noexcept
                 {
-                    m_hardware_base.publish_mqtt(topic,data,data_length, qos);
+                    m_hardware_base.publish_mqtt(topic, data, data_length, qos);
                 }
                 OmegaStatus disconnect() noexcept { return m_hardware_base.disconnect_mqtt(m_on_disconnected); }
 
