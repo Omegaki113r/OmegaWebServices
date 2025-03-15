@@ -28,8 +28,21 @@ int main(void)
         OMEGA_LOGE("Connection failed");
         return -1;
     }
+
+
     std::this_thread::sleep_for(std::chrono::seconds(5));
-    mqtt_client.disconnect();
-    std::this_thread::sleep_for(std::chrono::seconds(5));
+    mqtt_client.subscribe("broker/announcement", 0);
+
+    for(auto idx = 0; idx< 100; ++idx)
+    {
+        mqtt_client.publish("hello", (const u8*)"world", std::strlen("world"), 0);
+        std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    }
+    //mqtt_client.disconnect();
+    //std::this_thread::sleep_for(std::chrono::seconds(5));
+    for(;;) 
+    {
+        std::this_thread::sleep_for(std::chrono::seconds(5));
+    }
     return 0;
 }

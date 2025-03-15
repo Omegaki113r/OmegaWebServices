@@ -21,6 +21,7 @@
  */
 #include <functional>
 #include <memory>
+#include <iostream>
 
 // #include <Poco/Exception.h>
 // #include <Poco/Net/HTMLForm.h>
@@ -100,7 +101,7 @@ namespace Omega
             return {eFAILED, {}};
         }
 
-        Response x86_64::perform(Request::RequsetType type, const char *url, const Authentication &auth, const Header &header, std::function<void(const u8 *data, size_t data_length)> chunked_callback) noexcept
+        Response x86_64::perform_request(Request::RequsetType type, const char *url, const Authentication &auth, const Header &header, std::function<void(const u8 *data, size_t data_length)> chunked_callback) noexcept
         {
             if (Request::RequsetType::GET == type)
             {
@@ -113,13 +114,13 @@ namespace Omega
             return {eFAILED, {}};
         }
 
-        Response x86_64::perform(Request::RequsetType type, const char *host, u16 port, const char *path, const Authentication &auth, const Header &header, std::function<void(const u8 *data, size_t data_length)> chunked_callback) noexcept
+        Response x86_64::perform_request(Request::RequsetType type, const char *host, u16 port, const char *path, const Authentication &auth, const Header &header, std::function<void(const u8 *data, size_t data_length)> chunked_callback) noexcept
         {
             LOGE("NOT IMPLEMENTED");
             return {eFAILED, {}};
         }
 
-        Response x86_64::stream(Request::RequsetType type, const char *url, const Authentication &auth, const Header &header, std::function<void(u8 *data, size_t *data_length)> chunked_callback) noexcept
+        Response x86_64::stream_request(Request::RequsetType type, const char *url, const Authentication &auth, const Header &header, std::function<void(u8 *data, size_t *data_length)> chunked_callback) noexcept
         {
             if (Request::RequsetType::GET == type)
             {
@@ -133,7 +134,7 @@ namespace Omega
             return {eFAILED, {}};
         }
 
-        Response x86_64::stream(Request::RequsetType type, const char *host, u16 port, const char *path, const Authentication &auth, const Header &header, std::function<void(u8 *data, size_t *data_length)> chunked_callback) noexcept
+        Response x86_64::stream_request(Request::RequsetType type, const char *host, u16 port, const char *path, const Authentication &auth, const Header &header, std::function<void(u8 *data, size_t *data_length)> chunked_callback) noexcept
         {
             LOGE("NOT IMPLEMENTED");
             return {eFAILED, {}};
@@ -155,19 +156,24 @@ namespace Omega
 
             void connected(const std::string &cause) override
             {
-                LOGD("Connected: %s", cause.c_str());
+                LOGD("Connected");
                 m_on_connected();
             }
 
             void message_arrived(mqtt::const_message_ptr msg) override
             {
-                LOGD("Received: %s: %s", msg->get_topic(), msg->get_payload_str());
+                LOGD("Received: %s: %s", msg->get_topic().c_str(), msg->get_payload_str().c_str());
             }
 
             void connection_lost(const std::string &cause) override
             {
                 LOGD("Disconnected: %s", cause.c_str());
                 m_on_disconnected();
+            }
+
+            void delivery_complete(mqtt::delivery_token_ptr delivery_tok) 
+            {
+                LOGD("Delivery completed");
             }
         };
 
@@ -177,7 +183,7 @@ namespace Omega
 
         mqtt::async_client client(SERVER_ADDRESS, CLIENT_ID);
         mqtt::connect_options connOpts;
-       callback cb;
+        callback cb;
 
         OmegaStatus x86_64::connect_mqtt(const char *url, const Authentication &auth, std::function<void(void)> on_connected, std::function<void(const u8 *, size_t)> on_data, std::function<void(void)> on_disconnected) noexcept
         {
@@ -207,11 +213,28 @@ namespace Omega
 
         OmegaStatus x86_64::connect_mqtt(const char *host, u16 port, const Authentication &auth, std::function<void(void)> on_connected, std::function<void(const u8 *, size_t)> on_data, std::function<void(void)> on_disconnected) noexcept { return eFAILED; }
 
+        OmegaStatus x86_64::subscribe_mqtt(const char* topic, u8 qos) noexcept
+        {
+            const auto state = client.subscribe(topic, qos);
+            std::cout << state << std::endl;
+            return eFAILED;
+        }
+
+        OmegaStatus x86_64::publish_mqtt(const char* topic, const u8* data, size_t data_length, u8 qos) noexcept 
+        {
+            mqtt::message_ptr pubmsg = mqtt::make_message(topic, data, data_length);
+            pubmsg->set_qos(qos);
+            client.publish(pubmsg);
+            return eFAILED;
+        }
+
+
         OmegaStatus x86_64::disconnect_mqtt(std::function<void(void)> on_disconnected) noexcept
         {
             client.disconnect(0);
             on_disconnected();
             return eSUCCESS;
         }
+
     } // namespace WebServices
 } // namespace Omega

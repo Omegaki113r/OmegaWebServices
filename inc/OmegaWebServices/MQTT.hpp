@@ -10,7 +10,7 @@
  * File Created: Sunday, 9th February 2025 7:00:28 pm
  * Author: Omegaki113r (omegaki113r@gmail.com)
  * -----
- * Last Modified: Friday, 14th March 2025 6:50:20 am
+ * Last Modified: Saturday, 15th March 2025 5:51:58 am
  * Modified By: Omegaki113r (omegaki113r@gmail.com)
  * -----
  * Copyright 2025 - 2025 0m3g4ki113r, Xtronic
@@ -207,8 +207,16 @@ namespace Omega
                     }
                     return eFAILED;
                 }
-                 State is_connected() const noexcept { return State::eDISCONNECTED; }
-                 void publish(const char *topic, const char *data, size_t data_length, u8 qos = 0, bool retain = false) noexcept {}
+                State is_connected() const noexcept { return State::eDISCONNECTED; }
+                OmegaStatus subscribe(const char *topic, u8 qos) noexcept
+                {
+                    m_hardware_base.subscribe_mqtt(topic, qos);
+                    return eFAILED;
+                }
+                void publish(const char *topic, const u8 *data, size_t data_length, u8 qos = 0, bool retain = false) noexcept 
+                {
+                    m_hardware_base.publish_mqtt(topic,data,data_length, qos);
+                }
                 OmegaStatus disconnect() noexcept { return m_hardware_base.disconnect_mqtt(m_on_disconnected); }
 
                 ~Client() {}
