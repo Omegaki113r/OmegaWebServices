@@ -229,7 +229,10 @@ namespace Omega
 
         OmegaStatus x86_64::disconnect_mqtt(std::function<void(void)> on_disconnected) noexcept
         {
-            client.disconnect(0);
+            if (const auto err = MQTTClient_disconnect(std::get<MQTTClient>(m_connection), 5 * 1000);MQTTCLIENT_SUCCESS != err) {
+                LOGE("MQTTClient_disconnect failed with :%s", MQTTClient_strerror(err));
+                return eFAILED;
+            }
             on_disconnected();
             return eSUCCESS;
         }
