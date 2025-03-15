@@ -10,7 +10,7 @@
  * File Created: Tuesday, 11th March 2025 6:56:11 pm
  * Author: Omegaki113r (omegaki113r@gmail.com)
  * -----
- * Last Modified: Friday, 14th March 2025 6:20:25 am
+ * Last Modified: Sunday, 16th March 2025 12:58:04 am
  * Modified By: Omegaki113r (omegaki113r@gmail.com)
  * -----
  * Copyright <<projectCreationYear>> - 2025 0m3g4ki113r, Xtronic
@@ -20,8 +20,10 @@
  * ----------	---	---------------------------------------------------------
  */
 #include <functional>
-#include <memory>
 #include <iostream>
+#include <memory>
+#include <chrono>
+#include <thread>
 
 // #include <Poco/Exception.h>
 // #include <Poco/Net/HTMLForm.h>
@@ -29,8 +31,6 @@
 // #include <Poco/Net/HTTPRequest.h>
 // #include <Poco/Net/HTTPResponse.h>
 // #include <Poco/StreamCopier.h>
-
-#include <mqtt/async_client.h>
 
 #include "OmegaUtilityDriver/UtilityDriver.hpp"
 #include "OmegaWebServices/x86_64.hpp"
@@ -215,17 +215,10 @@ namespace Omega
         {
             if (const auto err = MQTTClient_publish(std::get<MQTTClient>(m_connection), topic, data_length, data, qos, false, nullptr);MQTTCLIENT_SUCCESS != err) {
                 LOGE("MQTTClient_publish failed with: %s", MQTTClient_strerror(err));
+                return eFAILED;
+            }
             return eFAILED;
         }
-
-        OmegaStatus x86_64::publish_mqtt(const char* topic, const u8* data, size_t data_length, u8 qos) noexcept 
-        {
-            mqtt::message_ptr pubmsg = mqtt::make_message(topic, data, data_length);
-            pubmsg->set_qos(qos);
-            client.publish(pubmsg);
-            return eFAILED;
-        }
-
 
         OmegaStatus x86_64::disconnect_mqtt(std::function<void(void)> on_disconnected) noexcept
         {

@@ -207,7 +207,7 @@ namespace Omega
                     if (std::holds_alternative<BrokerURI>(m_connection_info))
                     {
                         const auto connection_info = std::get<BrokerURI>(m_connection_info);
-                        return m_hardware_base.connect_mqtt(connection_info.m_uri, m_authentication, m_client_id ,m_on_connected, m_on_data, m_on_disconnected);
+                        return m_hardware_base.connect_mqtt(connection_info.m_uri, m_authentication, m_client_id, m_on_connected, m_on_data, m_on_disconnected);
                     }
                     if (std::holds_alternative<BrokerInfo>(m_connection_info))
                     {

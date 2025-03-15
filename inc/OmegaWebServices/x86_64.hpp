@@ -10,7 +10,7 @@
  * File Created: Tuesday, 11th March 2025 6:55:05 pm
  * Author: Omegaki113r (omegaki113r@gmail.com)
  * -----
- * Last Modified: Friday, 14th March 2025 6:50:32 am
+ * Last Modified: Sunday, 16th March 2025 1:00:44 am
  * Modified By: Omegaki113r (omegaki113r@gmail.com)
  * -----
  * Copyright <<projectCreationYear>> - 2025 0m3g4ki113r, Xtronic
@@ -22,6 +22,9 @@
 #pragma once
 
 #include <functional>
+#include <variant>
+
+#include <MQTTClient.h>
 
 #include "OmegaUtilityDriver/UtilityDriver.hpp"
 #include "OmegaWebServices/Authentication.hpp"
@@ -73,24 +76,27 @@ namespace Omega
                 std::function<void(const u8*, size_t)> m_on_data;
                 std::function<void(void)> m_on_disconnected;
             };
+
+            std::variant<std::monostate, MQTTClient> m_connection;
             MQTTHandlers m_handlers;
+
             Response perform_get(const char *url, const Authentication &auth, const Header &header, std::function<void(const u8 *data, size_t data_length)> chunked_callback = nullptr) noexcept;
             Response perform_post(const char *url, const Authentication &auth, const Header &header, std::function<void(const u8 *data, size_t data_length)> chunked_callback = nullptr) noexcept;
             Response stream_post(const char *url, const Authentication &auth, const Header &header, std::function<void(u8 *data, size_t *data_length)> chunked_callback = nullptr) noexcept;
 
         public:
             Response perform_request(Request::RequsetType type,
-                             const char *url, const Authentication &auth, const Header &header,
-                             std::function<void(const u8 *data, size_t data_length)> chunked_callback = nullptr) noexcept override;
+                                     const char *url, const Authentication &auth, const Header &header,
+                                     std::function<void(const u8 *data, size_t data_length)> chunked_callback = nullptr) noexcept override;
             Response perform_request(Request::RequsetType type,
-                             const char *host, u16 port, const char *path, const Authentication &auth, const Header &header,
-                             std::function<void(const u8 *data, size_t data_length)> chunked_callback = nullptr) noexcept override;
+                                     const char *host, u16 port, const char *path, const Authentication &auth, const Header &header,
+                                     std::function<void(const u8 *data, size_t data_length)> chunked_callback = nullptr) noexcept override;
             Response stream_request(Request::RequsetType type,
-                            const char *url, const Authentication &auth, const Header &header,
-                            std::function<void(u8 *data, size_t *data_length)> chunked_callback) noexcept override;
+                                    const char *url, const Authentication &auth, const Header &header,
+                                    std::function<void(u8 *data, size_t *data_length)> chunked_callback) noexcept override;
             Response stream_request(Request::RequsetType type,
-                            const char *host, u16 port, const char *path, const Authentication &auth, const Header &header,
-                            std::function<void(u8 *data, size_t *data_length)> chunked_callback) noexcept override;
+                                    const char *host, u16 port, const char *path, const Authentication &auth, const Header &header,
+                                    std::function<void(u8 *data, size_t *data_length)> chunked_callback) noexcept override;
             OmegaStatus connect_mqtt(const char *url, const Authentication &auth, const char *client_id, std::function<void(void)> on_connected, std::function<void(const u8 *, size_t)> on_data, std::function<void(void)> on_disconnected) noexcept override;
             OmegaStatus connect_mqtt(const char *host, u16 port, const Authentication &auth, const char *client_id, std::function<void(void)> on_connected, std::function<void(const u8 *, size_t)> on_data, std::function<void(void)> on_disconnected) noexcept override;
             OmegaStatus publish_mqtt(const char *topic, const u8 *data, size_t data_length, u8 qos) noexcept override;

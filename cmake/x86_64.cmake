@@ -28,14 +28,27 @@ FetchContent_MakeAvailable(OmegaUtilityDriver)
 # )
 # FetchContent_MakeAvailable(Poco)
 
+
 FetchContent_Declare(
-    paho_mqtt_cpp
-    GIT_REPOSITORY https://github.com/eclipse-paho/paho.mqtt.cpp.git
-    GIT_TAG origin/master
-    GIT_SHALLOW TRUE
+  paho_mqtt_c
+  GIT_REPOSITORY    https://github.com/eclipse-paho/paho.mqtt.c.git
+  GIT_TAG           origin/master
+  GIT_SHALLOW TRUE
 )
-set(PAHO_WITH_MQTT_C ON CACHE BOOL "Build Paho MQTT C library alongside C++ library" FORCE)
-FetchContent_MakeAvailable(paho_mqtt_cpp)
+set(PAHO_ENABLE_TESTING OFF CACHE BOOL "PAHO_ENABLE_TESTING" FORCE)
+set(PAHO_BUILD_SAMPLES OFF CACHE BOOL "PAHO_BUILD_SAMPLES" FORCE)
+set(PAHO_BUILD_SHARED OFF CACHE BOOL "PAHO_BUILD_SHARED" FORCE)
+set(PAHO_BUILD_STATIC ON CACHE BOOL "PAHO_BUILD_STATIC" FORCE)
+FetchContent_MakeAvailable(paho_mqtt_c)
+
+# FetchContent_Declare(
+#     paho_mqtt_cpp
+#     GIT_REPOSITORY https://github.com/eclipse-paho/paho.mqtt.cpp.git
+#     GIT_TAG origin/master
+#     GIT_SHALLOW TRUE
+# )
+# set(PAHO_WITH_MQTT_C ON CACHE BOOL "Build Paho MQTT C library alongside C++ library" FORCE)
+# FetchContent_MakeAvailable(paho_mqtt_cpp)
 
 # set(POCO_LIB_PATH ${PROJ_ROOT_DIR}/extra/libs/poco/lib)
 # set(POCO_LIB_HEADER_PATH 
@@ -52,7 +65,8 @@ target_include_directories(OmegaWebServices PUBLIC ${PROJ_HEADER_DIRS}
 target_link_libraries(OmegaWebServices 
   OmegaUtilityDriver 
 
-  paho-mqttpp3-static paho-mqtt3a-static
+  paho-mqtt3a-static
+  paho-mqtt3c-static
   # ${POCO_LIB_PATH}/PocoNet.lib 
   # ${POCO_LIB_PATH}/PocoNetd.lib 
   # ${POCO_LIB_PATH}/PocoFoundation.lib
