@@ -140,72 +140,66 @@ namespace Omega
             return {eFAILED, {}};
         }
 
-        class callback : public virtual mqtt::callback
+        OmegaStatus x86_64::connect_mqtt(const char *url, const Authentication &auth, const char *client_id, std::function<void(void)> on_connected, std::function<void(const u8 *, size_t)> on_data, std::function<void(void)> on_disconnected) noexcept
         {
+            MQTTClient mqtt_handle{};
+            MQTTClient_connectOptions conn_opts = MQTTClient_connectOptions_initializer;
+            MQTTClient_message pubmsg = MQTTClient_message_initializer;
+            MQTTClient_deliveryToken token;
 
-        public:
-            std::function<void(void)> m_on_connected;
-            std::function<void(const u8 *, size_t)> m_on_data;
-            std::function<void(void)> m_on_disconnected;
-
-            void set_callback(std::function<void(void)> on_connected, std::function<void(const u8 *, size_t)> on_data, std::function<void(void)> on_disconnected) {
-                m_on_connected = on_connected; 
-                m_on_data = on_data;  
-                m_on_disconnected = on_disconnected;
+            m_handlers = { on_connected, on_data, on_disconnected};
+            if (const auto state = MQTTClient_create(&mqtt_handle, url, client_id, MQTTCLIENT_PERSISTENCE_NONE, nullptr); MQTTCLIENT_SUCCESS != state) {
+                OMEGA_LOGE("MQTTClient_create failed with %s", MQTTClient_strerror(state));
+                return eFAILED;
             }
 
-            void connected(const std::string &cause) override
+            const auto on_connection_handler = [](void* context, char* cause) 
             {
-                LOGD("Connected");
-                m_on_connected();
+                    LOGD("Connection handler called");
+            };
+            const auto on_message_arrived_handler = [](void* context, char* topicName, int topicLen, MQTTClient_message* message) -> int
+            {
+                    LOGD("%s: %s", topicName, message->payload);
+                    MQTTClient_free(topicName);
+                    MQTTClient_freeMessage(&message);
+                    return 1;
+            };
+            const auto on_message_delivered_handler = [](void* context, MQTTClient_deliveryToken dt)
+            {
+                    LOGD("Message delivered");
+            };
+
+            if (const auto state = MQTTClient_setCallbacks(mqtt_handle, &m_handlers, on_connection_handler, on_message_arrived_handler, on_message_delivered_handler); MQTTCLIENT_SUCCESS != state)
+            {
+                LOGE("MQTTClient_create failed with %s", MQTTClient_strerror(state));
+                return eFAILED;
             }
 
-            void message_arrived(mqtt::const_message_ptr msg) override
+            if (const auto state = MQTTClient_connect(mqtt_handle, &conn_opts); MQTTCLIENT_SUCCESS != state) 
             {
-                LOGD("Received: %s: %s", msg->get_topic().c_str(), msg->get_payload_str().c_str());
+                LOGE("MQTTClient_connect with %s", MQTTClient_strerror(state));
+                return eFAILED;
             }
 
-            void connection_lost(const std::string &cause) override
+            size_t attempt = 0;
+            while(!MQTTClient_isConnected(mqtt_handle))
             {
-                LOGD("Disconnected: %s", cause.c_str());
-                m_on_disconnected();
+                std::this_thread::sleep_for(std::chrono::seconds(1));
+                attempt++;
+                if (attempt > 10) {
+                    break;
+                }
             }
-
-            void delivery_complete(mqtt::delivery_token_ptr delivery_tok) 
+            if(MQTTClient_isConnected(mqtt_handle))
             {
-                LOGD("Delivery completed");
+                m_connection = mqtt_handle;
+                on_connected();
+                return eSUCCESS;
             }
-        };
+            return eFAILED;
+        }
 
-        const std::string SERVER_ADDRESS{"192.168.43.159:1883"};
-        const std::string CLIENT_ID{"paho_cpp_client"};
-        const std::string TOPIC{"test/topic"};
-
-        mqtt::async_client client(SERVER_ADDRESS, CLIENT_ID);
-        mqtt::connect_options connOpts;
-        callback cb;
-
-        OmegaStatus x86_64::connect_mqtt(const char *url, const Authentication &auth,const char* client_id, std::function<void(void)> on_connected, std::function<void(const u8 *, size_t)> on_data, std::function<void(void)> on_disconnected) noexcept
-        {
-            client.set_callback(cb);
-            cb.set_callback(on_connected, on_data, on_disconnected);
-            connOpts.set_keep_alive_interval(20);
-            connOpts.set_clean_session(true);
-            try
-            {
-                client.connect(connOpts)->wait();
-            //     std::cout << "Connecting to " << SERVER_ADDRESS << "..." << std::endl;
-            //     std::cout << "Subscribing to " << TOPIC << "..." << std::endl;
-            //     client.subscribe(TOPIC, 1)->wait();
-            //     std::cout << "Publishing message..." << std::endl;
-            //     client.publish(TOPIC, "Hello from Paho C++!", 1, false)->wait();
-            //     std::this_thread::sleep_for(std::chrono::seconds(10));
-            //     std::cout << "Disconnecting..." << std::endl;
-            //     client.disconnect()->wait();
-            }
-            catch (const mqtt::exception &exc)
-            {
-                std::cerr << "Error: " << exc.what() << std::endl;
+        OmegaStatus x86_64::connect_mqtt(const char *host, u16 port, const Authentication &auth, const char *client_id, std::function<void(void)> on_connected, std::function<void(const u8 *, size_t)> on_data, std::function<void(void)> on_disconnected) noexcept { return eFAILED; }
                 return eFAILED;
             }
             return eSUCCESS;
