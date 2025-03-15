@@ -67,6 +67,13 @@ namespace Omega
     {
         class x86_64 : public HardwareBase
         {
+            struct MQTTHandlers
+            {
+                std::function<void(void)> m_on_connected;
+                std::function<void(const u8*, size_t)> m_on_data;
+                std::function<void(void)> m_on_disconnected;
+            };
+            MQTTHandlers m_handlers;
             Response perform_get(const char *url, const Authentication &auth, const Header &header, std::function<void(const u8 *data, size_t data_length)> chunked_callback = nullptr) noexcept;
             Response perform_post(const char *url, const Authentication &auth, const Header &header, std::function<void(const u8 *data, size_t data_length)> chunked_callback = nullptr) noexcept;
             Response stream_post(const char *url, const Authentication &auth, const Header &header, std::function<void(u8 *data, size_t *data_length)> chunked_callback = nullptr) noexcept;
