@@ -10,7 +10,7 @@
  * File Created: Sunday, 9th February 2025 7:00:28 pm
  * Author: Omegaki113r (omegaki113r@gmail.com)
  * -----
- * Last Modified: Sunday, 16th March 2025 10:49:53 am
+ * Last Modified: Sunday, 16th March 2025 12:04:57 pm
  * Modified By: Omegaki113r (omegaki113r@gmail.com)
  * -----
  * Copyright 2025 - 2025 0m3g4ki113r, Xtronic
@@ -183,7 +183,7 @@ namespace Omega
                     m_on_connected = connected_callback;
                     return *this;
                 }
-                Client &on_data(std::function<void(const u8 *, size_t)> data_callback) noexcept
+                Client &on_data(std::function<void(const char *, const u8 *, size_t)> data_callback) noexcept
                 {
                     m_on_data = data_callback;
                     return *this;
