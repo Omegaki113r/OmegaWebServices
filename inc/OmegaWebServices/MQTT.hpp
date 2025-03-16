@@ -10,7 +10,7 @@
  * File Created: Sunday, 9th February 2025 7:00:28 pm
  * Author: Omegaki113r (omegaki113r@gmail.com)
  * -----
- * Last Modified: Saturday, 15th March 2025 6:44:54 am
+ * Last Modified: Sunday, 16th March 2025 9:59:39 am
  * Modified By: Omegaki113r (omegaki113r@gmail.com)
  * -----
  * Copyright 2025 - 2025 0m3g4ki113r, Xtronic
@@ -192,6 +192,21 @@ namespace Omega
                 {
                     m_on_disconnected = disconnected_callback;
                     return *this;
+                }
+
+                void set_url(const char *url) noexcept { m_connection_info = BrokerURI(url); }
+                void set_host(const char *host, u16 port) noexcept { m_connection_info = BrokerInfo(host, port); }
+                void set_authentication(const Authentication &authentication) noexcept { m_authentication = authentication; }
+                void set_client_id(const char *client_id) noexcept
+                {
+                    if (nullptr == client_id || 0 == std::strlen(client_id))
+                    {
+                        LOGE("Invalid client_id parameter");
+                        return;
+                    }
+                    const auto client_id_size = std::strlen(client_id);
+                    strncpy(m_client_id, client_id, OMEGA_MIN(sizeof(m_client_id), client_id_size));
+                    m_client_id[client_id_size] = '\0';
                 }
 
                 void add_on_connected_handler(std::function<void(void)> connected_callback) noexcept { m_on_connected = connected_callback; }
