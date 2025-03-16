@@ -10,7 +10,7 @@
  * File Created: Tuesday, 11th March 2025 6:56:11 pm
  * Author: Omegaki113r (omegaki113r@gmail.com)
  * -----
- * Last Modified: Sunday, 16th March 2025 12:58:04 am
+ * Last Modified: Sunday, 16th March 2025 10:48:59 am
  * Modified By: Omegaki113r (omegaki113r@gmail.com)
  * -----
  * Copyright <<projectCreationYear>> - 2025 0m3g4ki113r, Xtronic
@@ -19,10 +19,10 @@
  * Date      	By	Comments
  * ----------	---	---------------------------------------------------------
  */
+#include <chrono>
 #include <functional>
 #include <iostream>
 #include <memory>
-#include <chrono>
 #include <thread>
 
 // #include <Poco/Exception.h>
@@ -140,33 +140,40 @@ namespace Omega
             return {eFAILED, {}};
         }
 
-        OmegaStatus x86_64::connect_mqtt(const char *url, const Authentication &auth, const char *client_id, std::function<void(void)> on_connected, std::function<void(const u8 *, size_t)> on_data, std::function<void(void)> on_disconnected) noexcept
+        OmegaStatus x86_64::connect_mqtt(const char *url, const Authentication &auth, const char *client_id, std::function<void(void)> on_connected, std::function<void(const char*, const u8 *, size_t)> on_data, std::function<void(void)> on_disconnected) noexcept
         {
             MQTTClient mqtt_handle{};
             MQTTClient_connectOptions conn_opts = MQTTClient_connectOptions_initializer;
             MQTTClient_message pubmsg = MQTTClient_message_initializer;
             MQTTClient_deliveryToken token;
 
-            m_handlers = { on_connected, on_data, on_disconnected};
-            if (const auto state = MQTTClient_create(&mqtt_handle, url, client_id, MQTTCLIENT_PERSISTENCE_NONE, nullptr); MQTTCLIENT_SUCCESS != state) {
+            m_handlers = {on_connected, on_data, on_disconnected};
+            if (const auto state = MQTTClient_create(&mqtt_handle, url, client_id, MQTTCLIENT_PERSISTENCE_NONE, nullptr); MQTTCLIENT_SUCCESS != state)
+            {
                 OMEGA_LOGE("MQTTClient_create failed with %s", MQTTClient_strerror(state));
                 return eFAILED;
             }
 
-            const auto on_connection_handler = [](void* context, char* cause) 
+            const auto on_connection_handler = [](void *context, char *cause)
             {
-                    LOGD("Connection handler called");
+                LOGD("Connection handler called");
+                MQTTHandlers *handlers = (MQTTHandlers *)context;
+                if (handlers->m_on_disconnected)
+                    handlers->m_on_disconnected();
             };
-            const auto on_message_arrived_handler = [](void* context, char* topicName, int topicLen, MQTTClient_message* message) -> int
+            const auto on_message_arrived_handler = [](void *context, char *topicName, int topicLen, MQTTClient_message *message) -> int
             {
-                    LOGD("%s: %s", topicName, message->payload);
-                    MQTTClient_free(topicName);
-                    MQTTClient_freeMessage(&message);
-                    return 1;
+                LOGD("%s: %s", topicName, message->payload);
+                MQTTHandlers *handlers = (MQTTHandlers *)context;
+                if (handlers->m_on_data)
+                    handlers->m_on_data(topicName, (u8*)message->payload, message->payloadlen);
+                MQTTClient_free(topicName);
+                MQTTClient_freeMessage(&message);
+                return 1;
             };
-            const auto on_message_delivered_handler = [](void* context, MQTTClient_deliveryToken dt)
+            const auto on_message_delivered_handler = [](void *context, MQTTClient_deliveryToken dt)
             {
-                    LOGD("Message delivered");
+                LOGD("Message delivered");
             };
 
             if (const auto state = MQTTClient_setCallbacks(mqtt_handle, &m_handlers, on_connection_handler, on_message_arrived_handler, on_message_delivered_handler); MQTTCLIENT_SUCCESS != state)
@@ -175,35 +182,37 @@ namespace Omega
                 return eFAILED;
             }
 
-            if (const auto state = MQTTClient_connect(mqtt_handle, &conn_opts); MQTTCLIENT_SUCCESS != state) 
+            if (const auto state = MQTTClient_connect(mqtt_handle, &conn_opts); MQTTCLIENT_SUCCESS != state)
             {
                 LOGE("MQTTClient_connect with %s", MQTTClient_strerror(state));
                 return eFAILED;
             }
 
             size_t attempt = 0;
-            while(!MQTTClient_isConnected(mqtt_handle))
+            while (!MQTTClient_isConnected(mqtt_handle))
             {
                 std::this_thread::sleep_for(std::chrono::seconds(1));
                 attempt++;
-                if (attempt > 10) {
+                if (attempt > 10)
+                {
                     break;
                 }
             }
-            if(MQTTClient_isConnected(mqtt_handle))
+            if (MQTTClient_isConnected(mqtt_handle))
             {
                 m_connection = mqtt_handle;
-                on_connected();
+                if (on_connected)
+                    on_connected();
                 return eSUCCESS;
             }
             return eFAILED;
         }
 
-        OmegaStatus x86_64::connect_mqtt(const char *host, u16 port, const Authentication &auth, const char *client_id, std::function<void(void)> on_connected, std::function<void(const u8 *, size_t)> on_data, std::function<void(void)> on_disconnected) noexcept { return eFAILED; }
+        OmegaStatus x86_64::connect_mqtt(const char *host, u16 port, const Authentication &auth, const char *client_id, std::function<void(void)> on_connected, std::function<void(const char *, const u8 *, size_t)> on_data, std::function<void(void)> on_disconnected) noexcept { return eFAILED; }
 
         OmegaStatus x86_64::subscribe_mqtt(const char *topic, u8 qos) noexcept
         {
-            if (const auto state = MQTTClient_subscribe(std::get<MQTTClient>(m_connection), topic, qos);MQTTCLIENT_SUCCESS != state)
+            if (const auto state = MQTTClient_subscribe(std::get<MQTTClient>(m_connection), topic, qos); MQTTCLIENT_SUCCESS != state)
             {
                 LOGE("MQTTClient_subscribe failed to :%s with %s", topic, MQTTClient_strerror(state));
                 return eFAILED;
@@ -213,7 +222,8 @@ namespace Omega
 
         OmegaStatus x86_64::publish_mqtt(const char *topic, const u8 *data, size_t data_length, u8 qos) noexcept
         {
-            if (const auto err = MQTTClient_publish(std::get<MQTTClient>(m_connection), topic, data_length, data, qos, false, nullptr);MQTTCLIENT_SUCCESS != err) {
+            if (const auto err = MQTTClient_publish(std::get<MQTTClient>(m_connection), topic, data_length, data, qos, false, nullptr); MQTTCLIENT_SUCCESS != err)
+            {
                 LOGE("MQTTClient_publish failed with: %s", MQTTClient_strerror(err));
                 return eFAILED;
             }
@@ -222,7 +232,8 @@ namespace Omega
 
         OmegaStatus x86_64::disconnect_mqtt(std::function<void(void)> on_disconnected) noexcept
         {
-            if (const auto err = MQTTClient_disconnect(std::get<MQTTClient>(m_connection), 5 * 1000);MQTTCLIENT_SUCCESS != err) {
+            if (const auto err = MQTTClient_disconnect(std::get<MQTTClient>(m_connection), 5 * 1000); MQTTCLIENT_SUCCESS != err)
+            {
                 LOGE("MQTTClient_disconnect failed with :%s", MQTTClient_strerror(err));
                 return eFAILED;
             }

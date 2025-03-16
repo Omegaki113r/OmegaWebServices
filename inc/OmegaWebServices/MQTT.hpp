@@ -10,7 +10,7 @@
  * File Created: Sunday, 9th February 2025 7:00:28 pm
  * Author: Omegaki113r (omegaki113r@gmail.com)
  * -----
- * Last Modified: Sunday, 16th March 2025 9:59:39 am
+ * Last Modified: Sunday, 16th March 2025 10:49:53 am
  * Modified By: Omegaki113r (omegaki113r@gmail.com)
  * -----
  * Copyright 2025 - 2025 0m3g4ki113r, Xtronic
@@ -131,7 +131,7 @@ namespace Omega
                 char m_client_id[100]{0};
                 // esp_mqtt_client_handle_t m_handle;
                 std::function<void(void)> m_on_connected;
-                std::function<void(const u8 *, size_t)> m_on_data;
+                std::function<void(const char *, const u8 *, size_t)> m_on_data;
                 std::function<void(void)> m_on_disconnected;
                 T m_hardware_base;
 
@@ -210,7 +210,7 @@ namespace Omega
                 }
 
                 void add_on_connected_handler(std::function<void(void)> connected_callback) noexcept { m_on_connected = connected_callback; }
-                void add_on_data_handler(std::function<void(const u8 *, size_t)> data_callback) noexcept { m_on_data = data_callback; }
+                void add_on_data_handler(std::function<void(const char *, const u8 *, size_t)> data_callback) noexcept { m_on_data = data_callback; }
                 void add_on_disconnected_handler(std::function<void(void)> disconnected_callback) noexcept { m_on_disconnected = disconnected_callback; }
                 OmegaStatus connect() noexcept
                 {
