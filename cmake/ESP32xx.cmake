@@ -13,7 +13,7 @@ set(PROJ_DEPENDENCIES       OmegaUtilityDriver)
 # endif()
 
 # if(CONFIG_OMEGA_ENABLE_MQTT)
-    set( PROJ_SOURCES       ${PROJ_SOURCES} ${PROJ_ROOT_DIR}/src/MQTT.cpp)
+    # set( PROJ_SOURCES       ${PROJ_SOURCES} ${PROJ_ROOT_DIR}/src/MQTT.cpp)
     set( PROJ_DEPENDENCIES  ${PROJ_DEPENDENCIES} mqtt)
 # endif()
 
