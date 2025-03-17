@@ -10,7 +10,7 @@
  * File Created: Friday, 21st February 2025 4:27:39 pm
  * Author: Omegaki113r (omegaki113r@gmail.com)
  * -----
- * Last Modified: Monday, 17th March 2025 2:13:45 pm
+ * Last Modified: Monday, 17th March 2025 2:53:21 pm
  * Modified By: Omegaki113r (omegaki113r@gmail.com)
  * -----
  * Copyright 2025 - 2025 0m3g4ki113r, Xtronic
@@ -22,6 +22,7 @@
 
 #pragma once
 
+#include <esp_http_client.h>
 #include <mqtt_client.h>
 
 #include "OmegaUtilityDriver/UtilityDriver.hpp"
