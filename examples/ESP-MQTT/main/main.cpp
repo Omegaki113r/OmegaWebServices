@@ -89,7 +89,7 @@ extern "C" void app_main(void)
     {
         delay({0, 0, 0, 500});
     }
-    // client.subscribe("broker/announcement", 0);
+    client.subscribe("broker/announcement", 0);
     for (;;)
     {
         if (::Omega::WebServices::State::eCONNECTED == client.is_connected())
