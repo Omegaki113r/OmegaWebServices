@@ -10,7 +10,7 @@
  * File Created: Friday, 21st February 2025 4:30:23 pm
  * Author: Omegaki113r (omegaki113r@gmail.com)
  * -----
- * Last Modified: Monday, 17th March 2025 1:00:06 pm
+ * Last Modified: Monday, 17th March 2025 2:39:55 pm
  * Modified By: Omegaki113r (omegaki113r@gmail.com)
  * -----
  * Copyright 2025 - 2025 0m3g4ki113r, Xtronic
@@ -29,6 +29,7 @@
 
 #include "OmegaUtilityDriver/UtilityDriver.hpp"
 #include "OmegaWebServices/ESP32xx.hpp"
+#include "OmegaWebServices/WebServices.hpp"
 
 #if CONFIG_OMEGA_WEB_SERVICES_DEBUG
 #define LOGD(format, ...) OMEGA_LOGD(format, ##__VA_ARGS__)
@@ -69,7 +70,6 @@ namespace Omega
 {
     namespace WebServices
     {
-
         OmegaStatus ESP32xx::cleanup(esp_http_client_handle_t handle) noexcept
         {
             if (const auto err = esp_http_client_cleanup(handle); ESP_OK != err)
@@ -77,6 +77,18 @@ namespace Omega
                 LOGE("esp_http_client_cleanup failed with: %s", esp_err_to_name(err));
                 return eFAILED;
             }
+            handle = nullptr;
+            return eSUCCESS;
+        }
+
+        OmegaStatus ESP32xx::cleanup(esp_mqtt_client_handle_t handle) noexcept
+        {
+            if (const auto err = esp_mqtt_client_destroy(handle); ESP_OK != err)
+            {
+                LOGE("esp_mqtt_client_destroy failed with: %s", esp_err_to_name(err));
+                return eFAILED;
+            }
+            handle = nullptr;
             return eSUCCESS;
         }
 
@@ -626,6 +638,264 @@ namespace Omega
             LOGE("NOT IMPLEMENTED");
             return {eFAILED, {}};
         }
+
+        struct _Client
+        {
+            std::function<void(void)> m_on_connected;
+            std::function<void(const char *, const u8 *, size_t)> m_on_data;
+            std::function<void(void)> m_on_disconnected;
+            ::Omega::WebServices::State *m_state;
+        };
+
+        State ESP32xx::get_mqtt_connection_state() const noexcept { return m_state; }
+
+        OmegaStatus ESP32xx::connect_mqtt(const char *url, const Authentication &auth, const char *client_id, std::function<void(void)> on_connected, std::function<void(const char *, const u8 *, size_t)> on_data, std::function<void(void)> on_disconnected) noexcept
+        {
+            const esp_mqtt_client_config_t::broker_t::address_t address{.uri = url};
+            const esp_mqtt_client_config_t::broker_t broker{address};
+            const esp_mqtt_client_config_t::credentials_t::authentication_t authentication{auth.password};
+            const esp_mqtt_client_config_t::credentials_t credential{.username = auth.username, .client_id = client_id, .authentication = authentication};
+            const esp_mqtt_client_config_t mqtt_config = {.broker = broker, .credentials = credential};
+            m_handle = esp_mqtt_client_init(&mqtt_config);
+            if (nullptr == m_handle)
+            {
+                LOGE("esp_mqtt_client_init failed");
+                return eFAILED;
+            }
+            const auto event_handler = [](void *event_handler_arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
+            {
+                _Client *client = (_Client *)event_handler_arg;
+                switch (event_id)
+                {
+                case MQTT_EVENT_ERROR:
+                {
+                    LOGD("MQTT_EVENT_ERROR");
+                    break;
+                }
+                case MQTT_EVENT_CONNECTED:
+                {
+                    LOGD("MQTT_EVENT_CONNECTED");
+                    if (client->m_state)
+                        *client->m_state = ::Omega::WebServices::State::eCONNECTED;
+                    if (client->m_on_connected)
+                        client->m_on_connected();
+                    break;
+                }
+                case MQTT_EVENT_DISCONNECTED:
+                {
+                    LOGD("MQTT_EVENT_DISCONNECTED");
+                    if (client->m_state)
+                        *client->m_state = ::Omega::WebServices::State::eCONNECTED;
+                    if (client->m_on_disconnected)
+                        client->m_on_disconnected();
+                    break;
+                }
+                case MQTT_EVENT_PUBLISHED:
+                {
+                    LOGD("MQTT_EVENT_PUBLISHED");
+                    break;
+                }
+                case MQTT_EVENT_DATA:
+                {
+                    LOGD("MQTT_EVENT_DATA");
+                    esp_mqtt_event_handle_t event = (esp_mqtt_event_handle_t)event_data;
+                    const auto topic = reinterpret_cast<char *>(event->topic);
+                    const auto data = reinterpret_cast<u8 *>(event->data);
+                    const auto topic_length = event->topic_len;
+                    const auto data_length = event->data_len;
+
+                    char *topic_buffer = (char *)malloc(topic_length + 1);
+                    if (topic_buffer)
+                    {
+                        UNUSED(std::memcpy(topic_buffer, topic, topic_length));
+                        topic_buffer[topic_length] = '\0';
+                    }
+                    u8 *data_buffer = (u8 *)malloc(data_length + 1);
+                    if (data_buffer)
+                    {
+                        UNUSED(std::memcpy(data_buffer, data, data_length));
+                        data_buffer[data_length] = '\0';
+                    }
+                    if (client->m_on_data)
+                        client->m_on_data(topic_buffer, data_buffer, data_length);
+                    free(topic_buffer);
+                    free(data_buffer);
+                    break;
+                }
+                case MQTT_EVENT_BEFORE_CONNECT:
+                {
+                    LOGD("MQTT_EVENT_BEFORE_CONNECT");
+                    break;
+                }
+                default:
+                {
+                    LOGE("Unhandled Event: %ld", event_id);
+                    break;
+                }
+                }
+            };
+            _Client *client = (_Client *)calloc(1, sizeof(_Client));
+            if (nullptr == client)
+            {
+                cleanup(m_handle);
+                return eFAILED;
+            }
+            client->m_on_connected = on_connected;
+            client->m_on_data = on_data;
+            client->m_on_disconnected = on_disconnected;
+            client->m_state = &m_state;
+            if (const auto err = esp_mqtt_client_register_event(m_handle, MQTT_EVENT_ANY, event_handler, client); ESP_OK != err)
+            {
+                LOGE("esp_mqtt_client_register_event failed");
+                cleanup(m_handle);
+                return eFAILED;
+            }
+            if (const auto err = esp_mqtt_client_start(m_handle); ESP_OK != err)
+            {
+                LOGE("esp_mqtt_client_start failed");
+                cleanup(m_handle);
+                return eFAILED;
+            }
+            return eSUCCESS;
+        }
+
+        OmegaStatus ESP32xx::connect_mqtt(const char *host, u16 port, const Authentication &auth, const char *client_id, std::function<void(void)> on_connected, std::function<void(const char *, const u8 *, size_t)> on_data, std::function<void(void)> on_disconnected) noexcept
+        {
+            const esp_mqtt_client_config_t::broker_t::address_t address{.hostname = host, .transport = MQTT_TRANSPORT_OVER_TCP, .port = port};
+            const esp_mqtt_client_config_t::broker_t broker{address};
+            const esp_mqtt_client_config_t::credentials_t::authentication_t authentication{auth.password};
+            const esp_mqtt_client_config_t::credentials_t credential{.username = auth.username, .client_id = client_id, .authentication = authentication};
+            const esp_mqtt_client_config_t mqtt_config = {.broker = broker, .credentials = credential};
+            m_handle = esp_mqtt_client_init(&mqtt_config);
+            if (nullptr == m_handle)
+            {
+                LOGE("esp_mqtt_client_init failed");
+                return eFAILED;
+            }
+            const auto event_handler = [](void *event_handler_arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
+            {
+                _Client *client = (_Client *)event_handler_arg;
+                switch (event_id)
+                {
+                case MQTT_EVENT_ERROR:
+                {
+                    LOGD("MQTT_EVENT_ERROR");
+                    break;
+                }
+                case MQTT_EVENT_CONNECTED:
+                {
+                    LOGD("MQTT_EVENT_CONNECTED");
+                    if (client->m_state)
+                        *client->m_state = ::Omega::WebServices::State::eCONNECTED;
+                    if (client->m_on_connected)
+                        client->m_on_connected();
+                    break;
+                }
+                case MQTT_EVENT_DISCONNECTED:
+                {
+                    LOGD("MQTT_EVENT_DISCONNECTED");
+                    if (client->m_state)
+                        *client->m_state = ::Omega::WebServices::State::eCONNECTED;
+                    if (client->m_on_disconnected)
+                        client->m_on_disconnected();
+                    break;
+                }
+                case MQTT_EVENT_PUBLISHED:
+                {
+                    LOGD("MQTT_EVENT_PUBLISHED");
+                    break;
+                }
+                case MQTT_EVENT_DATA:
+                {
+                    esp_mqtt_event_handle_t event = (esp_mqtt_event_handle_t)event_data;
+                    const auto topic = reinterpret_cast<char *>(event->topic);
+                    const auto data = reinterpret_cast<u8 *>(event->data);
+                    const auto topic_length = event->topic_len;
+                    const auto data_length = event->data_len;
+
+                    char *topic_buffer = (char *)malloc(topic_length + 1);
+                    if (topic_buffer)
+                    {
+                        UNUSED(std::memcpy(topic_buffer, topic, topic_length));
+                        topic_buffer[topic_length] = '\0';
+                    }
+                    u8 *data_buffer = (u8 *)malloc(data_length + 1);
+                    if (data_buffer)
+                    {
+                        UNUSED(std::memcpy(data_buffer, data, data_length));
+                        data_buffer[data_length] = '\0';
+                    }
+                    if (client->m_on_data)
+                        client->m_on_data(topic_buffer, data_buffer, data_length);
+                    free(topic_buffer);
+                    free(data_buffer);
+                    break;
+                }
+                case MQTT_EVENT_BEFORE_CONNECT:
+                {
+                    LOGD("MQTT_EVENT_BEFORE_CONNECT");
+                    break;
+                }
+                default:
+                {
+                    LOGE("Unhandled Event: %ld", event_id);
+                    break;
+                }
+                }
+            };
+            _Client *client = (_Client *)calloc(1, sizeof(_Client));
+            if (nullptr == client)
+            {
+                cleanup(m_handle);
+                return eFAILED;
+            }
+            client->m_on_connected = on_connected;
+            client->m_on_data = on_data;
+            client->m_on_disconnected = on_disconnected;
+            client->m_state = &m_state;
+            if (const auto err = esp_mqtt_client_register_event(m_handle, MQTT_EVENT_ANY, event_handler, client); ESP_OK != err)
+            {
+                LOGE("esp_mqtt_client_register_event failed");
+                cleanup(m_handle);
+                return eFAILED;
+            }
+            if (const auto err = esp_mqtt_client_start(m_handle); ESP_OK != err)
+            {
+                LOGE("esp_mqtt_client_start failed");
+                cleanup(m_handle);
+                return eFAILED;
+            }
+            return eSUCCESS;
+        }
+
+        OmegaStatus ESP32xx::publish_mqtt(const char *topic, const u8 *data, size_t data_length, u8 qos) noexcept
+        {
+            if (m_state != State::eCONNECTED)
+            {
+                LOGW("Not connected");
+                return eFAILED;
+            }
+            const auto message_id = esp_mqtt_client_publish(m_handle, topic, reinterpret_cast<const char *>(data), data_length, qos, false);
+            // LOGD("MessageID: %d", message_id);
+            return eSUCCESS;
+        }
+
+        OmegaStatus ESP32xx::subscribe_mqtt(const char *topic, u8 qos) noexcept
+        {
+            if (m_state != State::eCONNECTED)
+            {
+                LOGW("Not connected");
+                return eFAILED;
+            }
+            if (const auto message_id = esp_mqtt_client_subscribe(m_handle, topic, qos); 0 < message_id)
+            {
+                LOGE("esp_mqtt_client_subscribe failed");
+                return eFAILED;
+            }
+            return eSUCCESS;
+        }
+
+        OmegaStatus ESP32xx::disconnect_mqtt(std::function<void(void)> on_disconnected) noexcept { return eFAILED; }
     } // namespace WebServices
 } // namespace Omega
 

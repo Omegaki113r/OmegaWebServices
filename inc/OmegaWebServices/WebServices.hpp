@@ -10,7 +10,7 @@
  * File Created: Thursday, 2nd January 2025 8:01:10 pm
  * Author: Omegaki113r (omegaki113r@gmail.com)
  * -----
- * Last Modified: Tuesday, 11th March 2025 7:44:54 pm
+ * Last Modified: Monday, 17th March 2025 2:10:29 pm
  * Modified By: Omegaki113r (omegaki113r@gmail.com)
  * -----
  * Copyright 2025 - 2025 0m3g4ki113r, Xtronic
@@ -57,7 +57,11 @@ namespace Omega
 {
     namespace WebServices
     {
-
+        enum class State
+        {
+            eDISCONNECTED,
+            eCONNECTED,
+        };
     } // namespace WebServices
 } // namespace Omega
 

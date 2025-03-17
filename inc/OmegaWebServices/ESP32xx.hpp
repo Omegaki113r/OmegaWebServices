@@ -10,7 +10,7 @@
  * File Created: Friday, 21st February 2025 4:27:39 pm
  * Author: Omegaki113r (omegaki113r@gmail.com)
  * -----
- * Last Modified: Monday, 17th March 2025 12:58:16 pm
+ * Last Modified: Monday, 17th March 2025 2:13:45 pm
  * Modified By: Omegaki113r (omegaki113r@gmail.com)
  * -----
  * Copyright 2025 - 2025 0m3g4ki113r, Xtronic
@@ -22,11 +22,14 @@
 
 #pragma once
 
+#include <mqtt_client.h>
+
 #include "OmegaUtilityDriver/UtilityDriver.hpp"
 #include "OmegaWebServices/Authentication.hpp"
 #include "OmegaWebServices/HardwareBase.hpp"
 #include "OmegaWebServices/Header.hpp"
 #include "OmegaWebServices/Response.hpp"
+#include "OmegaWebServices/WebServices.hpp"
 
 #if CONFIG_OMEGA_WEB_SERVICES_DEBUG
 #define LOGD(format, ...) OMEGA_LOGD(format, ##__VA_ARGS__)
@@ -66,7 +69,10 @@ namespace Omega
     {
         class ESP32xx : public HardwareBase
         {
+            esp_mqtt_client_handle_t m_handle;
+            ::Omega::WebServices::State m_state{::Omega::WebServices::State::eDISCONNECTED};
             OmegaStatus cleanup(esp_http_client_handle_t handle) noexcept;
+            OmegaStatus cleanup(esp_mqtt_client_handle_t handle) noexcept;
             Response perform_get(const char *url, const Authentication &auth, const Header &header, std::function<void(const u8 *data, size_t data_length)> chunked_callback = nullptr) noexcept;
             Response perform_post(const char *url, const Authentication &auth, const Header &header, std::function<void(const u8 *data, size_t data_length)> chunked_callback = nullptr) noexcept;
             Response stream_post(const char *url, const Authentication &auth, const Header &header, std::function<void(u8 *data, size_t *data_length)> chunked_callback = nullptr) noexcept;
@@ -77,11 +83,12 @@ namespace Omega
             Response stream_request(Request::RequsetType type, const char *url, const Authentication &auth, const Header &header, std::function<void(u8 *data, size_t *data_length)> chunked_callback) noexcept override;
             Response stream_request(Request::RequsetType type, const char *host, u16 port, const char *path, const Authentication &auth, const Header &header, std::function<void(u8 *data, size_t *data_length)> chunked_callback) noexcept override;
 
-            OmegaStatus connect_mqtt(const char *url, const Authentication &auth, const char *client_id, std::function<void(void)> on_connected, std::function<void(const char *, const u8 *, size_t)> on_data, std::function<void(void)> on_disconnected) noexcept override {}
-            OmegaStatus connect_mqtt(const char *host, u16 port, const Authentication &auth, const char *client_id, std::function<void(void)> on_connected, std::function<void(const char *, const u8 *, size_t)> on_data, std::function<void(void)> on_disconnected) noexcept override {}
-            OmegaStatus publish_mqtt(const char *topic, const u8 *data, size_t data_length, u8 qos) noexcept override {}
-            OmegaStatus subscribe_mqtt(const char *topic, u8 qos) noexcept override {}
-            OmegaStatus disconnect_mqtt(std::function<void(void)> on_disconnected) noexcept override {}
+            State get_mqtt_connection_state() const noexcept override;
+            OmegaStatus connect_mqtt(const char *url, const Authentication &auth, const char *client_id, std::function<void(void)> on_connected, std::function<void(const char *, const u8 *, size_t)> on_data, std::function<void(void)> on_disconnected) noexcept override;
+            OmegaStatus connect_mqtt(const char *host, u16 port, const Authentication &auth, const char *client_id, std::function<void(void)> on_connected, std::function<void(const char *, const u8 *, size_t)> on_data, std::function<void(void)> on_disconnected) noexcept override;
+            OmegaStatus publish_mqtt(const char *topic, const u8 *data, size_t data_length, u8 qos) noexcept override;
+            OmegaStatus subscribe_mqtt(const char *topic, u8 qos) noexcept override;
+            OmegaStatus disconnect_mqtt(std::function<void(void)> on_disconnected) noexcept override;
         };
     } // namespace WebServices
 } // namespace Omega

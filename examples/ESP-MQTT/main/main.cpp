@@ -16,6 +16,7 @@
 
 #include "OmegaESP32xxNVSController/ESP32xxNVSController.hpp"
 #include "OmegaFileSystemController/FileSystemController.hpp"
+#include "OmegaWebServices/ESP32xx.hpp"
 #include "OmegaWebServices/MQTT.hpp"
 #include "OmegaWiFiController/WiFiController.hpp"
 
@@ -26,24 +27,26 @@
 // #define BROKER_USERNAME "Ytronic"
 // #define BROKER_PASSWORD "@M0irana"
 
-#define BROKER_URL "broker.hivemq.com"
-#define BROKER_URL_LEN strlen(BROKER_URL)
-#define BROKER_PORT 1883
+// #define BROKER_URL "broker.hivemq.com"
+// #define BROKER_URL_LEN strlen(BROKER_URL)
+// #define BROKER_PORT 1883
 
 const auto on_connected = []()
 {
     OMEGA_LOGI("On Connected");
 };
-const auto on_data = [](const u8 *data, size_t data_length)
+const auto on_data = [](const char *topic, const u8 *data, size_t data_length)
 {
-    OMEGA_LOGI("On Data");
+    OMEGA_LOGI("[%s] : %s", topic, data);
 };
 const auto on_disconnected = []()
 {
     OMEGA_LOGI("On Disconnected");
 };
 
-auto client = ::Omega::WebServices::MQTT::Client("192.168.1.2", 1883)
+auto client = ::Omega::WebServices::MQTT::Client(::Omega::WebServices::ESP32xx())
+                  .host("192.168.43.159", 1883)
+                  .client_id("Inovocaddy-Anchor-0000-0001")
                   .on_connected(on_connected)
                   .on_data(on_data)
                   .on_disconnected(on_disconnected);
@@ -78,22 +81,23 @@ extern "C" void app_main(void)
     std::srand(std::time(0));
 
     ::Omega::WiFiController::initialize(::Omega::WiFiController::Mode::eSTATION_MODE);
-    ::Omega::WiFiController::connect("Xtronic", "Om3gaki113r");
+    ::Omega::WiFiController::connect("GalaxyS9+71b0", "bqwk9667");
     ::Omega::WiFiController::wait_for_ip();
 
     client.connect();
-    while (::Omega::WebServices::MQTT::State::eCONNECTED != client.is_connected())
+    while (::Omega::WebServices::State::eCONNECTED != client.is_connected())
     {
         delay({0, 0, 0, 500});
     }
+    // client.subscribe("broker/announcement", 0);
     for (;;)
     {
-        if (::Omega::WebServices::MQTT::State::eCONNECTED == client.is_connected())
+        if (::Omega::WebServices::State::eCONNECTED == client.is_connected())
         {
             const char *topic = "/Elma/EABC12";
             const char *data = "";
-            client.publish(topic, randomString, std::strlen(randomString), 1);
-            OMEGA_LOGI("[%s] => %s", topic, data);
+            client.publish(topic, (const u8 *)randomString, std::strlen(randomString), 1, false);
+            // OMEGA_LOGI("[%s] => %s", topic, randomString);
         }
         delay({0, 0, 0, 100});
     }

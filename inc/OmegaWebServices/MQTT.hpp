@@ -10,7 +10,7 @@
  * File Created: Sunday, 9th February 2025 7:00:28 pm
  * Author: Omegaki113r (omegaki113r@gmail.com)
  * -----
- * Last Modified: Sunday, 16th March 2025 12:04:57 pm
+ * Last Modified: Monday, 17th March 2025 2:16:39 pm
  * Modified By: Omegaki113r (omegaki113r@gmail.com)
  * -----
  * Copyright 2025 - 2025 0m3g4ki113r, Xtronic
@@ -26,10 +26,9 @@
 #include <optional>
 #include <variant>
 
-// #include <mqtt_client.h>
-
 #include "OmegaUtilityDriver/UtilityDriver.hpp"
 #include "OmegaWebServices/Authentication.hpp"
+#include "OmegaWebServices/WebServices.hpp"
 
 #if CONFIG_OMEGA_WEB_SERVICES_DEBUG
 #define LOGD(format, ...) OMEGA_LOGD(format, ##__VA_ARGS__)
@@ -69,11 +68,6 @@ namespace Omega
     {
         namespace MQTT
         {
-            enum class State
-            {
-                eDISCONNECTED,
-                eCONNECTED,
-            };
 
             enum class Transport
             {
@@ -129,7 +123,6 @@ namespace Omega
                 std::variant<std::monostate, BrokerURI, BrokerInfo> m_connection_info;
                 Authentication m_authentication;
                 char m_client_id[100]{0};
-                // esp_mqtt_client_handle_t m_handle;
                 std::function<void(void)> m_on_connected;
                 std::function<void(const char *, const u8 *, size_t)> m_on_data;
                 std::function<void(void)> m_on_disconnected;
@@ -231,7 +224,7 @@ namespace Omega
                     }
                     return eFAILED;
                 }
-                State is_connected() const noexcept { return State::eDISCONNECTED; }
+                Omega::WebServices::State is_connected() const noexcept { return m_hardware_base.get_mqtt_connection_state(); }
                 OmegaStatus subscribe(const char *topic, u8 qos) noexcept
                 {
                     m_hardware_base.subscribe_mqtt(topic, qos);
