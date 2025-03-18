@@ -10,7 +10,7 @@
  * File Created: Sunday, 9th February 2025 7:00:28 pm
  * Author: Omegaki113r (omegaki113r@gmail.com)
  * -----
- * Last Modified: Monday, 17th March 2025 2:16:39 pm
+ * Last Modified: Tuesday, 18th March 2025 11:03:43 am
  * Modified By: Omegaki113r (omegaki113r@gmail.com)
  * -----
  * Copyright 2025 - 2025 0m3g4ki113r, Xtronic
@@ -201,6 +201,11 @@ namespace Omega
                     strncpy(m_client_id, client_id, OMEGA_MIN(sizeof(m_client_id), client_id_size));
                     m_client_id[client_id_size] = '\0';
                 }
+
+                const char *get_url() const noexcept { return std::get<BrokerURI>(m_connection_info).m_uri; }
+                const BrokerInfo &get_host() const noexcept { return std::get<BrokerInfo>(m_connection_info); }
+                const Authentication &get_authentication() const noexcept { return m_authentication; }
+                const char *get_client_id() const noexcept { return m_client_id; }
 
                 void add_on_connected_handler(std::function<void(void)> connected_callback) noexcept { m_on_connected = connected_callback; }
                 void add_on_data_handler(std::function<void(const char *, const u8 *, size_t)> data_callback) noexcept { m_on_data = data_callback; }
