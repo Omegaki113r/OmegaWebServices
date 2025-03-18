@@ -10,7 +10,7 @@
  * File Created: Tuesday, 11th March 2025 6:56:11 pm
  * Author: Omegaki113r (omegaki113r@gmail.com)
  * -----
- * Last Modified: Sunday, 16th March 2025 10:48:59 am
+ * Last Modified: Tuesday, 18th March 2025 4:37:46 pm
  * Modified By: Omegaki113r (omegaki113r@gmail.com)
  * -----
  * Copyright <<projectCreationYear>> - 2025 0m3g4ki113r, Xtronic
@@ -140,7 +140,9 @@ namespace Omega
             return {eFAILED, {}};
         }
 
-        OmegaStatus x86_64::connect_mqtt(const char *url, const Authentication &auth, const char *client_id, std::function<void(void)> on_connected, std::function<void(const char*, const u8 *, size_t)> on_data, std::function<void(void)> on_disconnected) noexcept
+        State x86_64::get_mqtt_connection_state() const noexcept { return State::eDISCONNECTED; }
+
+        OmegaStatus x86_64::connect_mqtt(const char *url, const Authentication &auth, const char *client_id, std::function<void(void)> on_connected, std::function<void(const char *, const u8 *, size_t)> on_data, std::function<void(void)> on_disconnected) noexcept
         {
             MQTTClient mqtt_handle{};
             MQTTClient_connectOptions conn_opts = MQTTClient_connectOptions_initializer;
@@ -166,7 +168,7 @@ namespace Omega
                 LOGD("%s: %s", topicName, message->payload);
                 MQTTHandlers *handlers = (MQTTHandlers *)context;
                 if (handlers->m_on_data)
-                    handlers->m_on_data(topicName, (u8*)message->payload, message->payloadlen);
+                    handlers->m_on_data(topicName, (u8 *)message->payload, message->payloadlen);
                 MQTTClient_free(topicName);
                 MQTTClient_freeMessage(&message);
                 return 1;
