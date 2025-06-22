@@ -10,7 +10,7 @@
  * File Created: Wednesday, 8th January 2025 12:39:16 am
  * Author: Omegaki113r (omegaki113r@gmail.com)
  * -----
- * Last Modified: Sunday, 9th February 2025 10:25:23 pm
+ * Last Modified: Sunday, 22nd June 2025 8:07:36 am
  * Modified By: Omegaki113r (omegaki113r@gmail.com)
  * -----
  * Copyright 2025 - 2025 0m3g4ki113r, Xtronic
@@ -65,8 +65,8 @@ namespace Omega
 
         struct Authentication
         {
-            char username[USERNAME_BUFFER_SIZE + 1];
-            char password[PASSWORD_BUFFER_SIZE + 1];
+            char username[USERNAME_BUFFER_SIZE + 1]{0};
+            char password[PASSWORD_BUFFER_SIZE + 1]{0};
 
             Authentication() = default;
             Authentication(const char *in_username, const char *in_password)
