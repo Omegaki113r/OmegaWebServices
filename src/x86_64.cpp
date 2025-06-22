@@ -10,7 +10,7 @@
  * File Created: Tuesday, 11th March 2025 6:56:11 pm
  * Author: Omegaki113r (omegaki113r@gmail.com)
  * -----
- * Last Modified: Tuesday, 18th March 2025 4:37:46 pm
+ * Last Modified: Sunday, 22nd June 2025 8:03:45 am
  * Modified By: Omegaki113r (omegaki113r@gmail.com)
  * -----
  * Copyright <<projectCreationYear>> - 2025 0m3g4ki113r, Xtronic
@@ -148,6 +148,15 @@ namespace Omega
             MQTTClient_connectOptions conn_opts = MQTTClient_connectOptions_initializer;
             MQTTClient_message pubmsg = MQTTClient_message_initializer;
             MQTTClient_deliveryToken token;
+
+            if (nullptr != auth.username)
+            {
+                conn_opts.username = auth.username;
+            }
+            if (nullptr != auth.password)
+            {
+                conn_opts.password = auth.password;
+            }
 
             m_handlers = {on_connected, on_data, on_disconnected};
             if (const auto state = MQTTClient_create(&mqtt_handle, url, client_id, MQTTCLIENT_PERSISTENCE_NONE, nullptr); MQTTCLIENT_SUCCESS != state)
